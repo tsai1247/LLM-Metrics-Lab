@@ -1,28 +1,25 @@
-version: "3.9"
+version: '3.8'
 
 services:
-  benchmark-api:
+  nctu6-unieinfra:
+    image: registry.unieai.com/unieverse/uifw-one:2.1
     volumes:
       - /mnt/weights:/mnt/weights
       - /home/nctu6/llm_test:/opt/llm_test
       - /sys:/sys:ro
       - /etc/machine-id:/etc/machine-id:ro
       - /etc/unieai:/etc/unieai
-      - .:/app
     runtime: nvidia
     cap_add:
       - SYS_ADMIN
     network_mode: host
     environment:
       - NCCL_DEBUG=INFO
-      - PYTHONUNBUFFERED=1
     shm_size: 256gb
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: benchmark-api
-    ports:
-      - "8000:8000"
+    entrypoint: ["/bin/bash", "-c"]
     command: >
-      sh -c "uvicorn fastapi_benchmark_app:app --host 0.0.0.0 --port 8000 --reload"
-    restart: unless-stopped
+      "unieai s0410
+      --model-path ${MODEL_SERIES}/${MODEL_NAME}
+      --host=0.0.0.0
+      --port=8999
+      --tp=${TP}"

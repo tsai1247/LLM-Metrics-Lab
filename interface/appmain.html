@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LLM Metrics Lab</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2em; }
+        h2 { margin-top: 2em; }
+        table { border-collapse: collapse; margin-bottom: 1em; }
+        th, td { border: 1px solid #ccc; padding: 0.5em; }
+        .log { background: #f9f9f9; padding: 1em; height: 120px; overflow-y: auto; font-size: 0.95em; }
+        button { margin: 0.2em; }
+        .combo-list { max-height: 120px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <h1>LLM Metrics Lab</h1>
+
+    <h2>1. 目標 Model 選擇</h2>
+    <form id="model-form">
+        <label for="model-name">Model Name(s):</label>
+        <select id="model-name" multiple size="5"></select>
+        <button type="submit">設定目標 Model</button>
+    </form>
+    <div>目前目標 Model: <b id="current-model"></b></div>
+
+    <h2>2. Benchmark 與 Engine 設定</h2>
+    <form id="config-form">
+        Benchmark:
+        <select id="benchmark-select"></select>
+        Engine:
+        <select id="engine-select"></select>
+        <button type="submit">設定</button>
+    </form>
+    <div>
+        Benchmark: <b id="benchmark-name"></b>
+        <br>
+        Engine: <b id="engine-name"></b>
+    </div>
+
+    <h2>3. Benchmark 測試參數</h2>
+    <form id="bench-input-form">
+        Concurrent: <input type="number" id="concurrent" value="1" min="1" required>
+        Time Limit(s): <input type="number" id="time-limit" value="60" min="1" required>
+        <!-- Dataset: <input type="text" id="dataset" value="default" required> -->
+        Input Token(s): <input type="number" id="input-tokens" value="2048" min="1" required>
+        Output Token(s): <input type="number" id="output-tokens" value="2048" min="1" required>
+        <button type="submit">新增 Benchmark 測試參數</button>
+    </form>
+    <table id="bench-inputs">
+        <thead>
+            <tr>
+                <th>Concurrent</th>
+                <th>Time Limit</th>
+                <th>Input Tokens</th>
+                <th>Output Tokens</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <h2>4. Engine 測試參數</h2>
+    <form id="engine-input-form">
+        GPU amount: <input type="text" id="gpu" value="1" min="1" max="32" required>
+        <button type="submit">新增 Engine 測試參數</button>
+    </form>
+    <table id="engine-inputs">
+        <thead>
+            <tr>
+                <th>GPU</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <h2>5. 組合管理</h2>
+    <button id="generate-combos">產生所有組合</button>
+    <table id="combos">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Model Params</th>
+                <th>Benchmark Params</th>
+                <th>Engine Params</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <h2>6. 執行測試</h2>
+    <button id="start-run">開始執行</button>
+    <div>
+        <strong>進度 Log:</strong>
+        <div class="log" id="progress-log"></div>
+    </div>
+    <div>
+        <strong>細節 Log:</strong>
+        <div class="log" id="detail-log"></div>
+    </div>
+
+    <h2>7. 結果視覺化</h2>
+    <div id="result"></div>
+    <!-- 圖表尚未實作 -->
+
+    <h2>8. 匯出結果</h2>
+    <button id="export-local">匯出到 Local</button>
+    <button id="export-wandb">匯出到 WandB</button>
+    <div id="export-status"></div>
+
+<script>
+const api = (path, method='GET', body=null) =>
+    fetch(path, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: body ? JSON.stringify(body) : undefined
+    }).then(r => r.json());
+
+let benchParams = [];
+let engineParams = [];
+let combos = [];
+let modelList = [];
+let currentModel = '';
+
+function refreshModelList() {
+    api('/models/available').then(data => {
+        modelList = data.models || [];
+        let select = document.getElementById('model-name');
+        select.innerHTML = modelList.map(m => `<option value="${m}">${m}</option>`).join('');
+    });
+}
+document.getElementById('model-form').onsubmit = e => {
+    e.preventDefault();
+    const select = document.getElementById('model-name');
+    const selectedModels = Array.from(select.selectedOptions).map(opt => opt.value);
+    currentModel = selectedModels.join(', ');
+    document.getElementById('current-model').textContent = currentModel;
+    // 可選: 通知後端
+    api('/models', 'POST', {models: selectedModels});
+};
+
+function refreshModel() {
+    api('/models').then(data => {
+        const models = data.models || [];
+        currentModel = Array.isArray(models) ? models.join(', ') : models;
+        document.getElementById('current-model').textContent = currentModel;
+    });
+}
+
+function refreshConfigOptions() {
+    api('/config/options').then(data => {
+        let benchSel = document.getElementById('benchmark-select');
+        let engineSel = document.getElementById('engine-select');
+        benchSel.innerHTML = data.benchmarks.map(b => `<option value="${b}">${b}</option>`).join('');
+        engineSel.innerHTML = data.engines.map(e => `<option value="${e}">${e}</option>`).join('');
+    });
+}
+document.getElementById('config-form').onsubmit = e => {
+    e.preventDefault();
+    let benchmark = document.getElementById('benchmark-select').value;
+    let engine = document.getElementById('engine-select').value;
+    api('/config', 'POST', {benchmark, engine}).then(refreshConfig);
+};
+
+function refreshConfig() {
+    api('/config').then(data => {
+        document.getElementById('benchmark-name').textContent = data.benchmark;
+        document.getElementById('engine-name').textContent = data.engine;
+    });
+}
+
+function refreshBenchInputs() {
+    api('/input/benchmark').then(data => {
+        benchParams = data.data || [];
+        let tbody = document.querySelector('#bench-inputs tbody');
+        tbody.innerHTML = benchParams.map(p =>
+            `<tr>
+                <td>${p.concurrent}</td>
+                <td>${p.time_limit}</td>
+                <td>${p.input_tokens}</td>
+                <td>${p.output_tokens}</td>
+            </tr>`
+        ).join('');
+    });
+}
+function refreshEngineInputs() {
+    api('/input/engine').then(data => {
+        engineParams = data.data || [];
+        let tbody = document.querySelector('#engine-inputs tbody');
+        tbody.innerHTML = engineParams.map(p =>
+            `<tr>
+                <td>${p.gpu}</td>
+            </tr>`
+        ).join('');
+    });
+}
+function refreshCombos() {
+    api('/combination').then( (data => {
+        combos = data.combinations || [];
+        let tbody = document.querySelector('#combos tbody');
+        tbody.innerHTML = combos.map((c, i) =>
+            `<tr>
+                <td>${i+1}</td>
+                <td>
+                    ${c.model}
+                </td>
+                <td>
+                    Concurrent:${c.benchmark.concurrent}, TimeLimit:${c.benchmark.time_limit}, Dataset:${c.benchmark.dataset}
+                </td>
+                <td>
+                    GPU:${c.engine.gpu}
+                </td>
+                <td>
+                    <button onclick="removeCombo(${i})">移除</button>
+                </td>
+            </tr>`
+        ).join('');
+    }))
+}
+function removeCombo(idx) {
+    api('/combination', 'DELETE', {index: parseInt(idx)}).then(refreshCombos);
+}
+
+document.getElementById('bench-input-form').onsubmit = e => {
+    e.preventDefault();
+    const param = {
+        concurrent: parseInt(document.getElementById('concurrent').value),
+        time_limit: parseInt(document.getElementById('time-limit').value),
+        input_tokens: document.getElementById('input-tokens').value,
+        output_tokens: document.getElementById('output-tokens').value
+    };
+    benchParams.push(param);
+    api('/input/benchmark', 'POST', benchParams).then(refreshBenchInputs);
+};
+document.getElementById('engine-input-form').onsubmit = e => {
+    e.preventDefault();
+    const param = {
+        gpu: document.getElementById('gpu').value
+    };
+    engineParams.push(param);
+    api('/input/engine', 'POST', engineParams).then(refreshEngineInputs);
+};
+document.getElementById('generate-combos').onclick = () => {
+    api('/combination', 'POST').then(refreshCombos);
+};
+
+document.getElementById('start-run').onclick = () => {
+    api('/execute/start', 'POST');
+};
+
+function pollLogs() {
+    api('/execute/log').then(data => {
+        document.getElementById('progress-log').textContent =
+            (data.execution_log || []).join('\n');
+    });
+    api('/execute/detail_log').then(data => {
+        document.getElementById('detail-log').textContent =
+            (data.detail_log || []).join('\n');
+    });
+    setTimeout(pollLogs, 500);
+}
+
+document.getElementById('export-local').onclick = () => {
+    api('/export/local', 'POST').then(data => {
+        document.getElementById('export-status').textContent = data.message;
+    });
+};
+document.getElementById('export-wandb').onclick = () => {
+    api('/export/wandb', 'POST').then(data => {
+        document.getElementById('export-status').textContent = data.message;
+    });
+};
+
+// 初始載入
+refreshModelList();
+refreshModel();
+refreshConfigOptions();
+refreshConfig();
+refreshBenchInputs();
+refreshEngineInputs();
+refreshCombos();
+pollLogs();
+</script>
+</body>

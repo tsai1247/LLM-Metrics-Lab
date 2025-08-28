@@ -170,3 +170,7 @@ api_monitor.jsonl
 *.jsonl
 *.png
 interface/index.html
+
+
+# autotest models volume
+autotest/engine/data/

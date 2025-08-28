@@ -1,1 +1,1 @@
-docker compose -f autotest/engine/habana-vllm/docker-compose.yml down
+docker compose -f engine/habana-vllm/docker-compose.yml down

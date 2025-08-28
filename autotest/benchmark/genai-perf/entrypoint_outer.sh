@@ -39,4 +39,4 @@ export INPUT_TOKENS=$input_tokens
 export OUTPUT_TOKENS=$output_tokens
 export PORT=$port
 
-docker compose -f "autotest/benchmark/genai-perf/docker-compose.yml" up
+docker compose -f "benchmark/genai-perf/docker-compose.yml" up

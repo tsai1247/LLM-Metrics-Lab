@@ -1,5 +1,5 @@
 #!/bin/bash
-source autotest/utils/server_check.sh
+source utils/server_check.sh
 
 # 預設值 (可選)
 benchmark=""
@@ -53,13 +53,13 @@ echo "port: $port"
 echo "devices: $devices"
 
 # call engine/${engine}.sh
-bash autotest/engine/${engine}/entrypoint_outer.sh --model-path "$model_path" --model-name "$model_name" --port "$port" --devices "$devices"
+bash engine/${engine}/entrypoint_outer.sh --model-path "$model_path" --model-name "$model_name" --port "$port" --devices "$devices"
 
 # wait until server is ready
 check_server http://127.0.0.1:${port}/v1/models
 
 # call benchmark/${benchmark}.sh
-bash autotest/benchmark/${benchmark}/entrypoint_outer.sh --concurrency "$concurrency" --model-path "$model_path"  --model-name "$model_name" --interval "$interval" --input-tokens "$input_tokens" --output-tokens "$output_tokens" --port "$port"
+bash benchmark/${benchmark}/entrypoint_outer.sh --concurrency "$concurrency" --model-path "$model_path"  --model-name "$model_name" --interval "$interval" --input-tokens "$input_tokens" --output-tokens "$output_tokens" --port "$port"
 
 # exit engine
-bash autotest/engine/${engine}/exit.sh 
+bash engine/${engine}/exit.sh 

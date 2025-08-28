@@ -34,4 +34,4 @@ export MODEL_PATH=$model_path
 export MODEL_NAME=$model_name
 export TP_SIZE=$devices
 
-docker compose -f autotest/engine/habana-vllm/docker-compose.yml up -d
+docker compose -f engine/habana-vllm/docker-compose.yml up -d

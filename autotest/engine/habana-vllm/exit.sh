@@ -1,0 +1,1 @@
+docker compose -f autotest/engine/habana-vllm/docker-compose.yml down

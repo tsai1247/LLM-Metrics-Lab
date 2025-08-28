@@ -7,6 +7,7 @@ input_tokens=1
 output_tokens=1
 interval=1
 concurrency=1
+device_amount=1
 
 # 參數解析，支援 --arg value 和 --arg=value 兩種格式
 while [[ $# -gt 0 ]]; do
@@ -23,6 +24,8 @@ while [[ $# -gt 0 ]]; do
     --input-tokens=*) input_tokens="${1#*=}"; shift ;;
     --output-tokens) output_tokens="$2"; shift 2 ;;
     --output-tokens=*) output_tokens="${1#*=}"; shift ;;
+    --device-amount) device_amount="$2"; shift 2 ;;
+    --device-amount=*) device_amount="${1#*=}"; shift ;;
     --port) port="$2"; shift 2 ;;
     --port=*) port="${1#*=}"; shift ;;
     *) echo "未知參數: $1"; exit 1;;
@@ -37,6 +40,7 @@ export MODEL_NAME=$model_name
 export INTERVAL=$interval
 export INPUT_TOKENS=$input_tokens
 export OUTPUT_TOKENS=$output_tokens
+export DEVICE_AMOUNT=$device_amount
 export PORT=$port
 
 docker compose -f "benchmark/genai-perf/docker-compose.yml" up

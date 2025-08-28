@@ -11,7 +11,7 @@ interval=0
 input_tokens=0
 output_tokens=0
 port=0
-devices=1
+device_amount=1
 
 # 參數解析，支援 --arg value 和 --arg=value 兩種格式
 while [[ $# -gt 0 ]]; do
@@ -34,8 +34,8 @@ while [[ $# -gt 0 ]]; do
     --output-tokens=*) output_tokens="${1#*=}"; shift ;;
     --port) port="$2"; shift 2 ;;
     --port=*) port="${1#*=}"; shift ;;
-    --devices) devices="$2"; shift 2 ;;
-    --devices=*) devices="${1#*=}"; shift ;;
+    --device-amount) devices="$2"; shift 2 ;;
+    --device-amount=*) devices="${1#*=}"; shift ;;
     *) echo "未知參數: $1"; exit 1;;
   esac
 done
@@ -50,16 +50,16 @@ echo "interval: $interval"
 echo "input_tokens: $input_tokens"
 echo "output_tokens: $output_tokens"
 echo "port: $port"
-echo "devices: $devices"
+echo "device_amount: $device_amount"
 
 # call engine/${engine}.sh
-bash engine/${engine}/entrypoint_outer.sh --model-path "$model_path" --model-name "$model_name" --port "$port" --devices "$devices"
+bash engine/${engine}/entrypoint_outer.sh --model-path "$model_path" --model-name "$model_name" --port "$port" --devices "$device_amount"
 
 # wait until server is ready
 check_server http://127.0.0.1:${port}/v1/models
 
 # call benchmark/${benchmark}.sh
-bash benchmark/${benchmark}/entrypoint_outer.sh --concurrency "$concurrency" --model-path "$model_path"  --model-name "$model_name" --interval "$interval" --input-tokens "$input_tokens" --output-tokens "$output_tokens" --port "$port"
+bash benchmark/${benchmark}/entrypoint_outer.sh --concurrency "$concurrency" --model-path "$model_path"  --model-name "$model_name" --interval "$interval" --input-tokens "$input_tokens" --output-tokens "$output_tokens" --port "$port" --device-amount "$device_amount"
 
 # exit engine
 bash engine/${engine}/exit.sh 

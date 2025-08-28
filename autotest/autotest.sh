@@ -38,7 +38,7 @@ jq -c '.[]' "$file_path" | while read -r item; do
   input_tokens=$(echo "$item" | jq -r '.input_tokens')
   output_tokens=$(echo "$item" | jq -r '.output_tokens')
   port=$(echo "$item" | jq -r '.port')
-  devices=$(echo "$item" | jq -r '.devices')
+  device_amount=$(echo "$item" | jq -r '.device_amount')
 
   # echo
   echo "=============================="
@@ -51,7 +51,7 @@ jq -c '.[]' "$file_path" | while read -r item; do
   echo "input_tokens: $input_tokens"
   echo "output_tokens: $output_tokens"
   echo "port: $port"
-  echo "devices: $devices"
+  echo "device_amount: $device_amount"
   echo "=============================="
 
   # 組合參數並執行 singletest.sh
@@ -65,5 +65,5 @@ jq -c '.[]' "$file_path" | while read -r item; do
     --input-tokens "$input_tokens" \
     --output-tokens "$output_tokens" \
     --port "$port" \
-    --devices "$devices"
+    --device-amount "$device_amount"
 done

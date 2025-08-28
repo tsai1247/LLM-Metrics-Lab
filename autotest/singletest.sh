@@ -59,5 +59,7 @@ bash autotest/engine/${engine}/entrypoint_outer.sh --model-path "$model_path" --
 check_server http://127.0.0.1:${port}/v1/models
 
 # call benchmark/${benchmark}.sh
-# TODO
-# bash autotest/benchmark/${benchmark}/start_engine.sh --concurrency "$concurrency" --model-path "$model_path" --interval "$interval" --input-tokens "$input_tokens" --output-tokens "$output_tokens" --port "$port"
+bash autotest/benchmark/${benchmark}/entrypoint_outer.sh --concurrency "$concurrency" --model-path "$model_path"  --model-name "$model_name" --interval "$interval" --input-tokens "$input_tokens" --output-tokens "$output_tokens" --port "$port"
+
+# exit engine
+bash autotest/engine/${engine}/exit.sh 

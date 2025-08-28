@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  genai-perf:
+    build:
+      context: .          # Dockerfile 所在目錄，這裡是同資料夾
+      dockerfile: Dockerfile  # 可省略，如果名字就是 Dockerfile
+    network_mode: host
+    container_name: genai-perf-for-autotest
+    volumes:
+      - ./entrypoint_inner.sh:/entrypoint_inner.sh
+      - ~/weights:/weights
+      - ~/results/genai-perf:/results/genai-perf
+    entrypoint: bash
+    command: /entrypoint_inner.sh
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PORT=${PORT}
+      - MODEL_NAME=${MODEL_NAME}
+      - MODEL_PATH=${MODEL_PATH}
+      - INPUT_TOKENS=${INPUT_TOKENS}
+      - OUTPUT_TOKENS=${OUTPUT_TOKENS}
+      - INTERVAL=${INTERVAL}
+      - CONCURRENCY=${CONCURRENCY}
+      - RESULT_DIR=/results/genai-perf
+    restart: "no"

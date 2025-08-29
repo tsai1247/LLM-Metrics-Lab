@@ -62,6 +62,6 @@ check_server http://127.0.0.1:${port}/v1/models
 bash benchmark/${benchmark}/entrypoint_outer.sh --concurrency "$concurrency" --model-path "$model_path"  --model-name "$model_name" --interval "$interval" --input-tokens "$input_tokens" --output-tokens "$output_tokens" --port "$port" --device-amount "$device_amount"
 
 # exit engine
-bash engine/${engine}/exit.sh 
+bash engine/${engine}/exit.sh --model-path "$model_path" --model-name "$model_name" --port "$port" --devices "$device_amount"
 
 log "Completed test: benchmark=$benchmark, concurrency=$concurrency, engine=$engine, model_path=$model_path, model_name=$model_name, interval=$interval, input_tokens=$input_tokens, output_tokens=$output_tokens, port=$port, device_amount=$device_amount"

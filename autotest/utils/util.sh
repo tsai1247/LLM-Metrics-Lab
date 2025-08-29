@@ -14,3 +14,15 @@ check_server (){
 	  fi
 	done
 }
+
+log() {
+    local message="$1"
+    local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+    local log_date=$(date +"%Y-%m-%d")
+    local log_dir="logs"
+    local log_file="$log_dir/$log_date.log"
+
+    mkdir -p "$log_dir"
+
+    echo "[$timestamp] $message" >> "$log_file"
+}

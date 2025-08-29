@@ -1,5 +1,5 @@
 #!/bin/bash
-source utils/server_check.sh
+source utils/util.sh
 
 # 預設值 (可選)
 benchmark=""
@@ -63,3 +63,5 @@ bash benchmark/${benchmark}/entrypoint_outer.sh --concurrency "$concurrency" --m
 
 # exit engine
 bash engine/${engine}/exit.sh 
+
+log "Completed test: benchmark=$benchmark, concurrency=$concurrency, engine=$engine, model_path=$model_path, model_name=$model_name, interval=$interval, input_tokens=$input_tokens, output_tokens=$output_tokens, port=$port, device_amount=$device_amount"

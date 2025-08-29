@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>多選組合生成器（純前端）</title>
+  <style>
+    :root { --gap: 12px; --card: #f7f7fb; --line:#e6e6ef; --text:#1f2330; --muted:#586174; }
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Noto Sans TC, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; margin:0; color:var(--text); background:#fff; }
+    header { padding: 20px; border-bottom:1px solid var(--line); position: sticky; top:0; background:#fff; z-index:10; }
+    header h1 { margin:0 0 6px; font-size: 20px; }
+    header p { margin:0; color:var(--muted); font-size: 13px; }
+    .container { padding: 20px; max-width: 1100px; margin: 0 auto; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--gap); }
+    .card { background:var(--card); border:1px solid var(--line); border-radius: 12px; padding: 12px; }
+    .card h3 { margin: 0 0 8px; font-size: 14px; letter-spacing: .2px; }
+    .add-row { display:flex; gap:6px; margin-top:8px; }
+    .add-row input { flex:1; padding:8px; border-radius:8px; border:1px solid var(--line); }
+    .add-row button { padding:8px 10px; border-radius:8px; border:1px solid var(--line); background:#fff; cursor:pointer; }
+    select { width:100%; min-height: 120px; padding:8px; border-radius: 10px; border:1px solid var(--line); background:#fff; }
+    .toolbar { display:flex; gap:8px; flex-wrap: wrap; margin: 16px 0; }
+    button.primary { background:#111827; color:#fff; border:1px solid #111827; padding:10px 14px; border-radius:10px; cursor:pointer; }
+    button.secondary { background:#fff; color:#111827; border:1px solid var(--line); padding:10px 14px; border-radius:10px; cursor:pointer; }
+    .results { margin-top: 20px; }
+    .results .meta { color:var(--muted); font-size: 13px; margin-bottom: 8px; }
+    table { border-collapse: collapse; width: 100%; margin-top:10px; }
+    th, td { border:1px solid var(--line); padding:6px; text-align:left; font-size:13px; }
+    th { background: #f0f0f5; }
+    tr:hover { background:#f9f9fc; }
+    .filter { margin: 10px 0; display:flex; flex-wrap: wrap; gap:6px; align-items:center; }
+    .filter input { padding:6px; border:1px solid var(--line); border-radius:6px; flex:1; }
+    .filter button { padding:6px 10px; border-radius:6px; border:1px solid var(--line); background:#fff; cursor:pointer; }
+    .footer { color:var(--muted); font-size:12px; margin-top:20px; }
+    .delete-btn { color: red; cursor: pointer; }
+    .tag { background:#e0e0ef; padding:2px 6px; border-radius:4px; margin-right:4px; display:inline-block; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>多選組合生成器（純前端）</h1>
+    <p>選擇多個值生成組合，支援刪除與多標籤篩選，最後匯出 JSON。</p>
+  </header>
+
+  <div class="container">
+    <div class="grid" id="fieldGrid"></div>
+
+    <div class="toolbar">
+      <button class="primary" id="generateBtn">生成組合</button>
+      <button class="secondary" id="exportBtn" disabled>匯出 JSON</button>
+      <button class="secondary" id="clearBtn">清空結果</button>
+    </div>
+
+    <div class="results" id="results" hidden>
+      <div class="meta" id="count"></div>
+      <div class="filter">
+        <input id="tagInput" placeholder="輸入標籤後按 Enter 或 +" />
+        <button id="addTagBtn">+</button>
+        <label><input type="radio" name="mode" value="or" checked>OR</label>
+        <label><input type="radio" name="mode" value="and">AND</label>
+      </div>
+      <div id="tagContainer"></div>
+      <table id="resultTable"></table>
+    </div>
+
+    <div class="footer">資料只在本機處理，無任何上傳。</div>
+  </div>
+
+  <script>
+    const schema = [
+      { key: 'benchmark', label: 'benchmark', options: ['unieai-test-g', 'unieai-test-s', 'genai-perf'], type: 'string' },
+      { key: 'concurrency', label: 'concurrency', options: [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 10, 20, 30], type: 'number' },
+      { key: 'engine', label: 'engine', options: ['habana-vllm', 'vllm', 'uifw-s', 'uifw-l', 'ollama'], type: 'string' },
+      { key: 'model_path', label: 'model_path', options: [
+          '/weights/Qwen/Qwen3-0.6B',
+          '/weights/mistralai/Mixtral-8x7B-Instruct-v0.1',
+          '/weights/mistralai/Mistral-7B-Instruct-v0.3',
+          '/weights/meta-llama/Llama-3.1-70B-Instruct',
+          '/weights/meta-llama/Llama-3.1-8B-Instruct',
+          '/weights/meta-llama/Llama-3.2-11B-Vision-Instruct',
+          '/weights/Qwen/Qwen2.5-72B-Instruct',
+          '/weights/Qwen/Qwen2.5-7B-Instruct',
+          '/weights/Qwen/Qwen2.5-32B-Instruct',
+          '/weights/nvidia/Llama-3.1-70B-Instruct-FP8',
+          '/weights/cpatonn/Qwen3-30B-A3B-Instruct-2507-AWQ-4bit'
+        ], type: 'string' },
+      { key: 'interval', label: 'interval (ms)', options: [5000, 30000, 120000, 300000, 600000], type: 'number' },
+      { key: 'input_tokens', label: 'input_tokens', options: [128, 1024, 2048], type: 'number' },
+      { key: 'output_tokens', label: 'output_tokens', options: [128, 1024, 2048], type: 'number' },
+      { key: 'port', label: 'port', options: [8000, 8001, 8999], type: 'number' },
+      { key: 'device_amount', label: 'device_amount', options: [1, 2, 4, 8], type: 'number' },
+    ];
+
+    const grid = document.getElementById('fieldGrid');
+    const resultTable = document.getElementById('resultTable');
+    const tagInput = document.getElementById('tagInput');
+    const addTagBtn = document.getElementById('addTagBtn');
+    const tagContainer = document.getElementById('tagContainer');
+    const modeRadios = document.getElementsByName('mode');
+
+    schema.forEach(f => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      const title = document.createElement('h3');
+      title.textContent = f.label;
+      card.appendChild(title);
+
+      const select = document.createElement('select');
+      select.multiple = true;
+      select.dataset.key = f.key;
+      select.dataset.type = f.type;
+      f.options.forEach(opt => {
+        const o = document.createElement('option');
+        o.value = opt;
+        o.textContent = opt;
+        o.selected = true;
+        select.appendChild(o);
+      });
+      card.appendChild(select);
+
+      const addRow = document.createElement('div');
+      addRow.className = 'add-row';
+      const input = document.createElement('input');
+      input.placeholder = '新增選項';
+      const btn = document.createElement('button');
+      btn.textContent = '+';
+      btn.onclick = () => {
+        if (input.value.trim()) {
+          const o = document.createElement('option');
+          o.value = input.value;
+          o.textContent = input.value;
+          o.selected = true;
+          select.appendChild(o);
+          input.value = '';
+        }
+      };
+      addRow.appendChild(input);
+      addRow.appendChild(btn);
+      card.appendChild(addRow);
+      grid.appendChild(card);
+    });
+
+    const generateBtn = document.getElementById('generateBtn');
+    const exportBtn = document.getElementById('exportBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const results = document.getElementById('results');
+    const count = document.getElementById('count');
+
+    let lastData = [];
+    let tags = [];
+
+    function getSelections() {
+      return Array.from(document.querySelectorAll('select')).map(sel => ({
+        key: sel.dataset.key,
+        type: sel.dataset.type,
+        values: Array.from(sel.selectedOptions).map(o => sel.dataset.type === 'number' ? Number(o.value) : o.value)
+      }));
+    }
+
+    function cartesian(arr) {
+      return arr.reduce((a, b) => a.flatMap(d => b.map(e => [...d, e])), [[]]);
+    }
+
+    function generate() {
+      const s = getSelections();
+      if (s.some(x => !x.values.length)) { alert('請為所有欄位選擇至少一個值'); return; }
+      const arrs = s.map(x => x.values);
+      const keys = s.map(x => x.key);
+      return cartesian(arrs).map(r => {
+        const o = {};
+        r.forEach((v, i) => o[keys[i]] = v);
+        return o;
+      });
+    }
+
+    function applyFilter() {
+      let filtered = lastData;
+      if (tags.length) {
+        const mode = document.querySelector('input[name="mode"]:checked').value;
+        filtered = lastData.filter(row => {
+          const text = JSON.stringify(row).toLowerCase();
+          if (mode === 'or') return tags.some(tag => text.includes(tag));
+          else return tags.every(tag => text.includes(tag));
+        });
+      }
+      renderTable(filtered);
+    }
+
+    function renderTable(data) {
+      resultTable.innerHTML = '';
+      if (!data.length) return;
+      const thead = document.createElement('thead');
+      const headerRow = document.createElement('tr');
+      [...Object.keys(data[0]), '操作'].forEach(k => {
+        const th = document.createElement('th');
+        th.textContent = k;
+        headerRow.appendChild(th);
+      });
+      thead.appendChild(headerRow);
+      resultTable.appendChild(thead);
+
+      const tbody = document.createElement('tbody');
+      data.forEach(row => {
+        const tr = document.createElement('tr');
+        Object.values(row).forEach(v => {
+          const td = document.createElement('td');
+          td.textContent = v;
+          tr.appendChild(td);
+        });
+        const delTd = document.createElement('td');
+        const delBtn = document.createElement('span');
+        delBtn.className = 'delete-btn';
+        delBtn.textContent = '刪除';
+        delBtn.onclick = () => {
+          const index = lastData.indexOf(row);
+          if (index > -1) { lastData.splice(index, 1); applyFilter(); }
+        };
+        delTd.appendChild(delBtn);
+        tr.appendChild(delTd);
+        tbody.appendChild(tr);
+      });
+      resultTable.appendChild(tbody);
+      count.textContent = `組合數：${data.length}`;
+    }
+
+    function addTag(tag) {
+      if (!tag || tags.includes(tag)) return;
+      tags.push(tag);
+      const span = document.createElement('span');
+      span.className = 'tag';
+      span.textContent = tag;
+      span.onclick = () => { tags = tags.filter(t => t !== tag); span.remove(); applyFilter(); };
+      tagContainer.appendChild(span);
+      applyFilter();
+    }
+
+    addTagBtn.onclick = () => { addTag(tagInput.value.trim().toLowerCase()); tagInput.value = ''; };
+    tagInput.addEventListener('keydown', e => { if (e.key === 'Enter') { addTag(tagInput.value.trim().toLowerCase()); tagInput.value = ''; } });
+    modeRadios.forEach(r => r.addEventListener('change', applyFilter));
+
+    generateBtn.onclick = () => { lastData = generate(); if (!lastData) return; applyFilter(); results.hidden = false; exportBtn.disabled = false; };
+    exportBtn.onclick = () => { const blob = new Blob([JSON.stringify(lastData, null, 2)], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'data.json'; a.click(); URL.revokeObjectURL(a.href); };
+    clearBtn.onclick = () => { lastData = []; tags = []; tagContainer.innerHTML = ''; renderTable([]); results.hidden = true; exportBtn.disabled = true; };
+  </script>
+</body>
+</html>

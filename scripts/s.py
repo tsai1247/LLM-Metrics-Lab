@@ -302,6 +302,14 @@ async def main_openai(args):
         f"{'TPS decode (token/s per request):':<{width}} {output_data['tps_decode']:{num_width}.{precision}f}\n"
         f"{'TPS prompt (token/s per request):':<{width}} {output_data['tps_prompt']:{num_width}.{precision}f}\n"
     )
+    
+    # write to result file
+    result_dir = Path("/results/unieai-test-s")
+    result_dir.mkdir(parents=True, exist_ok=True)
+    result_file = result_dir / "result.json"
+    with result_file.open("w") as f:
+        import json
+        json.dump(output_data, f, indent=4)
 
 def prepare_summarization(tokenizer):
     tokenizer.pad_token = tokenizer.eos_token

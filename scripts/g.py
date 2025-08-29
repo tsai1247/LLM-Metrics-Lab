@@ -303,6 +303,13 @@ async def main_openai(args):
         f"{'TPS prompt (token/s per request):':<{width}} {output_data['tps_prompt']:{num_width}.{precision}f}\n"
     )
 
+    # write to result file
+    result_dir = Path("/results/unieai-test-g")
+    result_dir.mkdir(parents=True, exist_ok=True)
+    result_file = result_dir / "result.json"
+    with result_file.open("w") as f:
+        import json
+        json.dump(output_data, f, indent=4)
 
 def to_openai_messages(conversation):
     """

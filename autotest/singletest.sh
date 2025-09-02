@@ -34,8 +34,8 @@ while [[ $# -gt 0 ]]; do
     --output-tokens=*) output_tokens="${1#*=}"; shift ;;
     --port) port="$2"; shift 2 ;;
     --port=*) port="${1#*=}"; shift ;;
-    --device-amount) devices="$2"; shift 2 ;;
-    --device-amount=*) devices="${1#*=}"; shift ;;
+    --device-amount) device_amount="$2"; shift 2 ;;
+    --device-amount=*) device_amount="${1#*=}"; shift ;;
     *) echo "未知參數: $1"; exit 1;;
   esac
 done
@@ -65,3 +65,4 @@ bash benchmark/${benchmark}/entrypoint_outer.sh --concurrency "$concurrency" --m
 bash engine/${engine}/exit.sh --model-path "$model_path" --model-name "$model_name" --port "$port" --devices "$device_amount"
 
 log "Completed test: benchmark=$benchmark, concurrency=$concurrency, engine=$engine, model_path=$model_path, model_name=$model_name, interval=$interval, input_tokens=$input_tokens, output_tokens=$output_tokens, port=$port, device_amount=$device_amount"
+bash export/entrypoint_outer.sh --name "tmp" --start-date "19700101-000000" --end-date "99991231-235959"

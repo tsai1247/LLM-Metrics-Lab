@@ -40,6 +40,11 @@ jq -c '.[]' "$file_path" | while read -r item; do
   port=$(echo "$item" | jq -r '.port')
   device_amount=$(echo "$item" | jq -r '.device_amount')
 
+  # if model_name is null, model_name = model_path .split('/')[-1]
+  if [[ "$model_name" == "null" || -z "$model_name" ]]; then
+    model_name=$(basename "$model_path")
+  fi
+
   # echo
   echo "=============================="
   echo "benchmark: $benchmark"
@@ -53,6 +58,7 @@ jq -c '.[]' "$file_path" | while read -r item; do
   echo "port: $port"
   echo "device_amount: $device_amount"
   echo "=============================="
+
 
   # 組合參數並執行 singletest.sh
   bash singletest.sh \

@@ -19,10 +19,8 @@ services:
       - PORT=${PORT}
       - MODEL_NAME=${MODEL_NAME}
       - MODEL_PATH=${MODEL_PATH}
-      - INPUT_TOKENS=${INPUT_TOKENS}
       - OUTPUT_TOKENS=${OUTPUT_TOKENS}
       - DEVICE_AMOUNT=${DEVICE_AMOUNT}
-      - INTERVAL=${INTERVAL}
       - CONCURRENCY=${CONCURRENCY}
       - RESULT_DIR=/results/unieai-test-g
     restart: "no"

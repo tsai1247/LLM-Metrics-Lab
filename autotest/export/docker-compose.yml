@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  genai-perf:
+    build:
+      context: .          # Dockerfile 所在目錄，這裡是同資料夾
+      dockerfile: Dockerfile  # 可省略，如果名字就是 Dockerfile
+    network_mode: host
+    container_name: export-for-autotest
+    volumes:
+      - ./entrypoint_inner.sh:/entrypoint_inner.sh
+      - ./:/workspace
+      - ~/weights:/weights
+      - ~/results:/results
+    entrypoint: bash
+    command: /entrypoint_inner.sh
+    environment:
+      PYTHONUNBUFFERED: 1
+      EXPORT_NAME: ${EXPORT_NAME:-result}
+      EXPORT_START_DATE: ${EXPORT_START_DATE:-19700101-000000}
+      EXPORT_END_DATE: ${EXPORT_END_DATE:-99991231-235959}
+    restart: "no"

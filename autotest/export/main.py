@@ -88,16 +88,12 @@ def update_sheet(worksheetname, data):
     # 轉換為 DataFrame
     df = pd.DataFrame(data)
 
-    # order by timestamp
-    df = df.sort_values(by="timestamp")
-
     # 清空 Google Sheet與所有表格，重新上傳
     spreadsheet = client.open_by_key(docid)
     try:
         sheet = spreadsheet.worksheet(worksheetname)
     except gspread.exceptions.WorksheetNotFound:
         sheet = spreadsheet.add_worksheet(title=worksheetname, rows="1000", cols="20")
-
 
     sheet.clear()
     sheet.update([df.columns.values.tolist()] + df.values.tolist())

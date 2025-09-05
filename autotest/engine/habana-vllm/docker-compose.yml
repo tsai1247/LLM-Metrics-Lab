@@ -19,7 +19,7 @@ services:
       HABANA_DEVICE: gaudi3
       DEVICE: gaudi3
       VLLM_TORCH_PROFILER_DIR: /mnt/traces/
-      MODEL_PATH: ${MODEL_PATH:-/weights/Qwen/Qwen3-0.6B}
+      MODEL_OWNER: ${MODEL_OWNER:-/weights/Qwen/Qwen3-0.6B}
       MODEL_NAME: ${MODEL_NAME:-Qwen3-0.6B}
       TP_SIZE: ${TP_SIZE:-1}
       PORT: ${PORT:-8000}

@@ -5,7 +5,7 @@ source utils/util.sh
 benchmark=""
 concurrency=1
 engine=""
-model_path=""
+model_owner=""
 model_name=""
 interval=0
 input_tokens=0
@@ -22,8 +22,8 @@ while [[ $# -gt 0 ]]; do
     --concurrency=*) concurrency="${1#*=}"; shift ;;
     --engine) engine="$2"; shift 2 ;;
     --engine=*) engine="${1#*=}"; shift ;;
-    --model-path) model_path="$2"; shift 2 ;;
-    --model-path=*) model_path="${1#*=}"; shift ;;
+    --model-owner) model_owner="$2"; shift 2 ;;
+    --model-owner=*) model_owner="${1#*=}"; shift ;;
     --model-name) model_name="$2"; shift 2 ;;
     --model-name=*) model_name="${1#*=}"; shift ;;
     --interval) interval="$2"; shift 2 ;;
@@ -44,7 +44,7 @@ done
 echo "benchmark: $benchmark"
 echo "concurrency: $concurrency"
 echo "engine: $engine"
-echo "model_path: $model_path"
+echo "model_owner: $model_owner"
 echo "model_name: $model_name"
 echo "interval: $interval"
 echo "input_tokens: $input_tokens"
@@ -53,16 +53,16 @@ echo "port: $port"
 echo "device_amount: $device_amount"
 
 # call engine/${engine}.sh
-bash engine/${engine}/entrypoint_outer.sh --model-path "$model_path" --model-name "$model_name" --port "$port" --devices "$device_amount"
+bash engine/${engine}/entrypoint_outer.sh --model-owner "$model_owner" --model-name "$model_name" --port "$port" --devices "$device_amount"
 
 # wait until server is ready
 check_server http://127.0.0.1:${port}/v1/models
 
 # call benchmark/${benchmark}.sh
-bash benchmark/${benchmark}/entrypoint_outer.sh --concurrency "$concurrency" --model-path "$model_path"  --model-name "$model_name" --interval "$interval" --input-tokens "$input_tokens" --output-tokens "$output_tokens" --port "$port" --device-amount "$device_amount"
+bash benchmark/${benchmark}/entrypoint_outer.sh --concurrency "$concurrency" --model-owner "$model_owner"  --model-name "$model_name" --interval "$interval" --input-tokens "$input_tokens" --output-tokens "$output_tokens" --port "$port" --device-amount "$device_amount"
 
 # exit engine
-bash engine/${engine}/exit.sh --model-path "$model_path" --model-name "$model_name" --port "$port" --devices "$device_amount"
+bash engine/${engine}/exit.sh
 
-log "Completed test: benchmark=$benchmark, concurrency=$concurrency, engine=$engine, model_path=$model_path, model_name=$model_name, interval=$interval, input_tokens=$input_tokens, output_tokens=$output_tokens, port=$port, device_amount=$device_amount"
+log "Completed test: benchmark=$benchmark, concurrency=$concurrency, engine=$engine, model: $model_owner/$model_name, interval=$interval, input_tokens=$input_tokens, output_tokens=$output_tokens, port=$port, device_amount=$device_amount"
 bash export/entrypoint_outer.sh --name "tmp" --start-date "19700101-000000" --end-date "99991231-235959"

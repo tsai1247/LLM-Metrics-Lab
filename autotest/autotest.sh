@@ -38,8 +38,7 @@ jq -c '.[]' "$file_path" | while read -r item; do
   benchmark=$(echo "$item" | jq -r '.benchmark')
   concurrency=$(echo "$item" | jq -r '.concurrency')
   engine=$(echo "$item" | jq -r '.engine')
-  model_path=$(echo "$item" | jq -r '.model_path')
-  model_name=$(echo "$item" | jq -r '.model_name')
+  model_id=$(echo "$item" | jq -r '.model_id')
   interval=$(echo "$item" | jq -r '.interval')
   input_tokens=$(echo "$item" | jq -r '.input_tokens')
   output_tokens=$(echo "$item" | jq -r '.output_tokens')
@@ -51,12 +50,17 @@ jq -c '.[]' "$file_path" | while read -r item; do
     model_name=$(basename "$model_path")
   fi
 
+  model_id = "Qwen/Qwen3-0.6B"
+  # get model_owner and model_name from model_id
+  model_owner="${model_id%%/*}"
+  model_name="${model_id#*/}"
+
   # echo
   echo "=============================="
   echo "benchmark: $benchmark"
   echo "concurrency: $concurrency"
   echo "engine: $engine"
-  echo "model_path: $model_path"
+  echo "model_owner: $model_owner"
   echo "model_name: $model_name"
   echo "interval: $interval"
   echo "input_tokens: $input_tokens"
@@ -71,7 +75,7 @@ jq -c '.[]' "$file_path" | while read -r item; do
     --benchmark "$benchmark" \
     --concurrency "$concurrency" \
     --engine "$engine" \
-    --model-path "$model_path" \
+    --model-owner "$model_owner" \
     --model-name "$model_name" \
     --interval "$interval" \
     --input-tokens "$input_tokens" \

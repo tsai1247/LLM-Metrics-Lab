@@ -4,7 +4,7 @@ genai-perf profile \
         --streaming \
         --url http://localhost:${PORT} \
         -m ${MODEL_NAME} \
-        --tokenizer ${MODEL_PATH} \
+        --tokenizer ${MODEL_OWNER}/${MODEL_NAME} \
         --extra-inputs ignore_eos:true \
         --extra-inputs temperature:0 \
         --synthetic-input-tokens-mean ${INPUT_TOKENS} \
@@ -21,7 +21,7 @@ mv ${RESULT_DIR}/${MODEL_NAME}-openai-completions-concurrency${CONCURRENCY} \
 echo "{
   \"benchmark\": \"genai-perf\",
   \"concurrency\": ${CONCURRENCY},
-  \"model_path\": \"${MODEL_PATH}\",
+  \"model_owner\": \"${MODEL_OWNER}\",
   \"model_name\": \"${MODEL_NAME}\",
   \"interval\": ${INTERVAL},
   \"input_tokens\": ${INPUT_TOKENS},

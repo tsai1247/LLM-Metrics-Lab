@@ -1,5 +1,5 @@
 #!/bin/bash
-python scripts/g.py --model-name ${MODEL_NAME} --tokenizer ${MODEL_PATH} --max-new-tokens ${OUTPUT_TOKENS} --concurrency ${CONCURRENCY} --port ${PORT}
+python scripts/g.py --model-name ${MODEL_NAME} --tokenizer ${MODEL_OWNER}/${MODEL_NAME} --max-new-tokens ${OUTPUT_TOKENS} --concurrency ${CONCURRENCY} --port ${PORT}
 
 date_dir=$(date +%Y%m%d-%H%M%S)
 mkdir -p ${RESULT_DIR}/${date_dir}
@@ -10,7 +10,7 @@ mv ${RESULT_DIR}/result.json \
 echo "{
   \"benchmark\": \"unieai-test-g\",
   \"concurrency\": ${CONCURRENCY},
-  \"model_path\": \"${MODEL_PATH}\",
+  \"model_owner\": \"${MODEL_OWNER}\",
   \"model_name\": \"${MODEL_NAME}\",
   \"output_tokens\": ${OUTPUT_TOKENS},
   \"device_amount\": ${DEVICE_AMOUNT}

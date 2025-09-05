@@ -9,7 +9,7 @@ services:
     container_name: unieai-test-g-for-autotest
     volumes:
       - ./entrypoint_inner.sh:/entrypoint_inner.sh
-      - ~/weights:/weights
+      - ${MODEL_PATH:-/home/unieai2/weights}:/weights
       - ~/results/unieai-test-g:/results/unieai-test-g
       - ../../../scripts:/app/scripts
     entrypoint: bash
@@ -17,8 +17,8 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - PORT=${PORT}
+      - MODEL_OWNER=${MODEL_OWNER}
       - MODEL_NAME=${MODEL_NAME}
-      - MODEL_PATH=${MODEL_PATH}
       - OUTPUT_TOKENS=${OUTPUT_TOKENS}
       - DEVICE_AMOUNT=${DEVICE_AMOUNT}
       - CONCURRENCY=${CONCURRENCY}

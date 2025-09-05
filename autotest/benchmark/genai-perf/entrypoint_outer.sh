@@ -1,7 +1,7 @@
 
 # 預設值 (可選)
 port=0
-model_path=""
+model_owner=""
 model_name=""
 input_tokens=1
 output_tokens=1
@@ -14,8 +14,8 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --concurrency) concurrency="$2"; shift 2 ;;
     --concurrency=*) concurrency="${1#*=}"; shift ;;
-    --model-path) model_path="$2"; shift 2 ;;
-    --model-path=*) model_path="${1#*=}"; shift ;;
+    --model-owner) model_owner="$2"; shift 2 ;;
+    --model-owner=*) model_owner="${1#*=}"; shift ;;
     --model-name) model_name="$2"; shift 2 ;;
     --model-name=*) model_name="${1#*=}"; shift ;;
     --interval) interval="$2"; shift 2 ;;
@@ -32,10 +32,10 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-echo "run genai-perf benchmark on port $port with model from $model_path (model name is $model_name) using $concurrency concurrency, $input_tokens input tokens, $output_tokens output tokens, $interval ms interval"
+echo "run genai-perf benchmark on port $port with model from $model_path/$model_name using $concurrency concurrency, $input_tokens input tokens, $output_tokens output tokens, $interval ms interval"
 # set env PORT MODEL_PATH MODEL_NAME TP_SIZE
 export CONCURRENCY=$concurrency
-export MODEL_PATH=$model_path
+export MODEL_OWNER=$model_owner
 export MODEL_NAME=$model_name
 export INTERVAL=$interval
 export INPUT_TOKENS=$input_tokens

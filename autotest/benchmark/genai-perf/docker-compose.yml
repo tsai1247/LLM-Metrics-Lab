@@ -9,15 +9,15 @@ services:
     container_name: genai-perf-for-autotest
     volumes:
       - ./entrypoint_inner.sh:/entrypoint_inner.sh
-      - ~/weights:/weights
+      - ${MODEL_PATH:-/home/unieai2/weights}:/weights
       - ~/results/genai-perf:/results/genai-perf
     entrypoint: bash
     command: /entrypoint_inner.sh
     environment:
       - PYTHONUNBUFFERED=1
       - PORT=${PORT}
+      - MODEL_OWNER=${MODEL_OWNER}
       - MODEL_NAME=${MODEL_NAME}
-      - MODEL_PATH=${MODEL_PATH}
       - INPUT_TOKENS=${INPUT_TOKENS}
       - OUTPUT_TOKENS=${OUTPUT_TOKENS}
       - DEVICE_AMOUNT=${DEVICE_AMOUNT}

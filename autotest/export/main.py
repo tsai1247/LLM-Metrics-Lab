@@ -3,6 +3,7 @@ import json
 import pandas as pd
 import gspread
 from google.oauth2.service_account import Credentials
+import os
 
 # usage: python main.py --start-date 20231011-010101 --end-date 20231011-235959
 # 解析參數，如果沒有參數的話預設是date.min ~ date.max
@@ -21,6 +22,12 @@ end_date = args.end_date
 # Google Sheets 設定
 SERVICE_ACCOUNT_FILE = "service_account.json"  # 你的金鑰檔
 docid = "1GNDiJuWbTgu_kQlkBav73w8JOQm4bBuKBaWpDgCm7Hk"  # 你的 Google Sheet ID
+
+file_path = SERVICE_ACCOUNT_FILE
+
+if not os.path.exists(file_path):
+    print('service_account.json not found.  upload to google sheet failed.')
+    exit(1)
 
 # 授權
 scopes = ["https://www.googleapis.com/auth/spreadsheets"]

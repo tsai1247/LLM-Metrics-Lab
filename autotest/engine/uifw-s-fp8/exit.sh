@@ -1,4 +1,4 @@
-
+#!/bin/bash
 # 預設值 (可選)
 model_path=""
 model_name=""
@@ -27,11 +27,11 @@ echo "port: $port"
 echo "devices: $devices"
 
 
-echo "run uifw-s server on port $port with model $model_name from $model_path using $devices devices"
+echo "stop uifw-s server on port $port with model $model_name from $model_path using $devices devices"
 # set env PORT MODEL_PATH MODEL_NAME TP_SIZE
 export PORT=$port
 export MODEL_PATH=$model_path
 export MODEL_NAME=$model_name
 export TP_SIZE=$devices
 
-docker compose -f engine/uifw-s/docker-compose.yml up -d
+docker compose -f engine/uifw-s-fp8/docker-compose.yml down

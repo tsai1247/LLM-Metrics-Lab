@@ -10,7 +10,7 @@ services:
     volumes:
       - ./entrypoint_inner.sh:/entrypoint_inner.sh
       - ./:/workspace
-      - ~/weights:/weights
+      - ${MODEL_PATH:-/home/unieai2/weights}:/weights
       - ~/results:/results
     entrypoint: bash
     command: /entrypoint_inner.sh

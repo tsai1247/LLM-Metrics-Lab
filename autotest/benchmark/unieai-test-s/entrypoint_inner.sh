@@ -13,5 +13,5 @@ echo "{
   \"model_owner\": \"${MODEL_OWNER}\",
   \"model_name\": \"${MODEL_NAME}\",
   \"output_tokens\": ${OUTPUT_TOKENS},
-  \"device_amount\": ${DEVICE_AMOUNT}
+  \"tp_size\": ${TP_SIZE}
 }" > ${RESULT_DIR}/${date_dir}/parameter.json

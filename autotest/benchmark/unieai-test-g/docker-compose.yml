@@ -16,11 +16,12 @@ services:
     command: /entrypoint_inner.sh
     environment:
       - PYTHONUNBUFFERED=1
-      - PORT=${PORT}
-      - MODEL_OWNER=${MODEL_OWNER}
-      - MODEL_NAME=${MODEL_NAME}
-      - OUTPUT_TOKENS=${OUTPUT_TOKENS}
-      - DEVICE_AMOUNT=${DEVICE_AMOUNT}
-      - CONCURRENCY=${CONCURRENCY}
+      - PORT=${PORT:-8999}
+      - MODEL_OWNER=${MODEL_OWNER:-Qwen}
+      - MODEL_NAME=${MODEL_NAME:-Qwen3-0.6B}
+      - OUTPUT_TOKENS=${OUTPUT_TOKENS:-1024}
+      - TP_SIZE=${TP_SIZE:-1}
+      - INTERVAL=${INTERVAL:-120000}
+      - CONCURRENCY=${CONCURRENCY:-1}
       - RESULT_DIR=/results/unieai-test-g
     restart: "no"

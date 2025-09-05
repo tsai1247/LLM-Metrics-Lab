@@ -26,5 +26,5 @@ echo "{
   \"interval\": ${INTERVAL},
   \"input_tokens\": ${INPUT_TOKENS},
   \"output_tokens\": ${OUTPUT_TOKENS},
-  \"device_amount\": ${DEVICE_AMOUNT}
+  \"tp_size\": ${TP_SIZE}
 }" > ${RESULT_DIR}/${date}/parameter.json

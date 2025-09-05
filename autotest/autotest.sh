@@ -43,12 +43,7 @@ jq -c '.[]' "$file_path" | while read -r item; do
   input_tokens=$(echo "$item" | jq -r '.input_tokens')
   output_tokens=$(echo "$item" | jq -r '.output_tokens')
   port=$(echo "$item" | jq -r '.port')
-  device_amount=$(echo "$item" | jq -r '.device_amount')
-
-  # if model_name is null, model_name = model_path .split('/')[-1]
-  if [[ "$model_name" == "null" || -z "$model_name" ]]; then
-    model_name=$(basename "$model_path")
-  fi
+  tp_size=$(echo "$item" | jq -r '.tp_size')
 
   model_id = "Qwen/Qwen3-0.6B"
   # get model_owner and model_name from model_id
@@ -66,7 +61,7 @@ jq -c '.[]' "$file_path" | while read -r item; do
   echo "input_tokens: $input_tokens"
   echo "output_tokens: $output_tokens"
   echo "port: $port"
-  echo "device_amount: $device_amount"
+  echo "tp_size: $tp_size"
   echo "=============================="
 
 
@@ -81,7 +76,7 @@ jq -c '.[]' "$file_path" | while read -r item; do
     --input-tokens "$input_tokens" \
     --output-tokens "$output_tokens" \
     --port "$port" \
-    --device-amount "$device_amount"
+    --tp-size "$tp_size"
 done
 
 # end_date = now:YYYYMMDD-HHMMSS

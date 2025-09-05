@@ -5,7 +5,7 @@ model_owner=""
 model_name=""
 output_tokens=1
 concurrency=1
-device_amount=1
+tp_size=1
 
 # 參數解析，支援 --arg value 和 --arg=value 兩種格式
 while [[ $# -gt 0 ]]; do
@@ -18,8 +18,8 @@ while [[ $# -gt 0 ]]; do
     --model-name=*) model_name="${1#*=}"; shift ;;
     --output-tokens) output_tokens="$2"; shift 2 ;;
     --output-tokens=*) output_tokens="${1#*=}"; shift ;;
-    --device-amount) device_amount="$2"; shift 2 ;;
-    --device-amount=*) device_amount="${1#*=}"; shift ;;
+    --tp-size) tp_size="$2"; shift 2 ;;
+    --tp-size=*) tp_size="${1#*=}"; shift ;;
     --port) port="$2"; shift 2 ;;
     --port=*) port="${1#*=}"; shift ;;
     --input-tokens) shift 2 ;;
@@ -36,7 +36,7 @@ export CONCURRENCY=$concurrency
 export MODEL_OWNER=$model_owner
 export MODEL_NAME=$model_name
 export OUTPUT_TOKENS=$output_tokens
-export DEVICE_AMOUNT=$device_amount
+export TP_SIZE=$tp_size
 export PORT=$port
 
 docker compose -f benchmark/unieai-test-s/docker-compose.yml up

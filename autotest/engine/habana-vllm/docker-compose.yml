@@ -10,7 +10,7 @@ services:
     volumes:
       - /dev/accel:/dev/accel
       - ~/.cache/huggingface:/root/.cache/huggingface
-      - ~/weights:/weights
+      - ${MODEL_PATH:-/home/unieai2/weights}:/weights
       - ./:/workspace
       - /tmp/traces:/mnt/traces
       - ./entrypoint_inner.sh:/entrypoint_inner.sh
@@ -19,7 +19,7 @@ services:
       HABANA_DEVICE: gaudi3
       DEVICE: gaudi3
       VLLM_TORCH_PROFILER_DIR: /mnt/traces/
-      MODEL_OWNER: ${MODEL_OWNER:-/weights/Qwen/Qwen3-0.6B}
+      MODEL_OWNER: ${MODEL_OWNER:-Qwen}
       MODEL_NAME: ${MODEL_NAME:-Qwen3-0.6B}
       TP_SIZE: ${TP_SIZE:-1}
       PORT: ${PORT:-8000}

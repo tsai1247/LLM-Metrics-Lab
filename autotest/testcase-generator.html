@@ -51,6 +51,12 @@
       <button class="secondary" id="clearBtn">清空結果</button>
     </div>
 
+    <div class="model-path" style="margin: 10px 0;">
+      <label>model_path: 
+        <input id="modelPathInput" placeholder="輸入 model_path，可留空" style="padding:6px; border:1px solid #ccc; border-radius:6px; width:300px;">
+      </label>
+    </div>
+
     <div class="results" id="results" hidden>
       <div class="meta" id="count"></div>
       <div class="filter">
@@ -239,7 +245,19 @@
     modeRadios.forEach(r => r.addEventListener('change', applyFilter));
 
     generateBtn.onclick = () => { lastData = generate(); if (!lastData) return; applyFilter(); results.hidden = false; exportBtn.disabled = false; };
-    exportBtn.onclick = () => { const blob = new Blob([JSON.stringify(lastData, null, 2)], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'data.json'; a.click(); URL.revokeObjectURL(a.href); };
+    exportBtn.onclick = () => { 
+      const modelPath = document.getElementById('modelPathInput').value || "";
+      const output = {
+        model_path: modelPath,
+        testcases: lastData
+      };
+      const blob = new Blob([JSON.stringify(output, null, 2)], { type: 'application/json' }); 
+      const a = document.createElement('a'); 
+      a.href = URL.createObjectURL(blob); 
+      a.download = 'data.json'; 
+      a.click(); 
+      URL.revokeObjectURL(a.href); 
+    };
     clearBtn.onclick = () => { lastData = []; tags = []; tagContainer.innerHTML = ''; renderTable([]); results.hidden = true; exportBtn.disabled = true; };
   </script>
 </body>

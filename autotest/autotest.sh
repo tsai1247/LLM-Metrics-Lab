@@ -4,7 +4,7 @@
 
 # 預設值 (可選)
 file_path=""
-name="result"
+name=""
 
 # 參數解析，支援 --arg value 和 --arg=value 兩種格式
 while [[ $# -gt 0 ]]; do
@@ -32,8 +32,10 @@ if ! command -v jq &> /dev/null; then
   exit 1
 fi
 
+model_path=$(jq -r '.model_path' "$file_path")
+
 # 讀取 JSON 檔案並遍歷每個物件
-jq -c '.[]' "$file_path" | while read -r item; do
+jq -c '.testcases[]' "$file_path" | while read -r item; do
   # 解析每個欄位
   benchmark=$(echo "$item" | jq -r '.benchmark')
   concurrency=$(echo "$item" | jq -r '.concurrency')
@@ -70,6 +72,7 @@ jq -c '.[]' "$file_path" | while read -r item; do
     --benchmark "$benchmark" \
     --concurrency "$concurrency" \
     --engine "$engine" \
+    --model-path "$model_path" \
     --model-owner "$model_owner" \
     --model-name "$model_name" \
     --interval "$interval" \
@@ -81,5 +84,8 @@ done
 
 # end_date = now:YYYYMMDD-HHMMSS
 end_date=$(date +%Y%m%d-%H%M%S)
+if [ -z "$name" ]; then
+  name="result_${start_date}_${end_date}"
+fi
 
 bash export/entrypoint_outer.sh --name "$name" --start-date "$start_date" --end-date "$end_date"

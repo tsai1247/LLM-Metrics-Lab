@@ -26,3 +26,43 @@ log() {
 
     echo "[$timestamp] $message" >> "$log_file"
 }
+
+parse_args() {
+  local allowed="$1"   # 第一個參數是允許的參數清單 (空白分隔)
+  shift                # 移掉 $1，剩下的才是真正傳入的參數
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --*=*)
+        key="${1%%=*}"   # 取等號左邊 (--model-path)
+        val="${1#*=}"    # 取等號右邊 (/path)
+        ;;
+      --*)
+        key="$1"         # --model-path
+        val="$2"         # /path
+        shift
+        ;;
+      *)
+        echo "未知參數: $1"
+        exit 1
+        ;;
+    esac
+
+    local found=0
+    for arg in $allowed; do
+      if [[ "$key" == "--$arg" ]]; then
+        var_name="${arg//-/_}"   # 把 dash 轉成底線
+        eval "$var_name=\"$val\""
+        found=1
+        break
+      fi
+    done
+
+    if [[ $found -eq 0 ]]; then
+      echo "未知參數: $key"
+      exit 1
+    fi
+
+    shift
+  done
+}

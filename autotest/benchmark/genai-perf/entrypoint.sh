@@ -1,4 +1,8 @@
 #!/bin/bash
+echo "benchmark: ${BENCHMARK}, model: ${MODEL_OWNER}/${MODEL_NAME}, port: ${PORT}, \
+input_tokens: ${INPUT_TOKENS}, output_tokens: ${OUTPUT_TOKENS}, interval: ${INTERVAL}, concurrency: ${CONCURRENCY}, \
+result_dir: ${RESULT_DIR}"
+
 genai-perf profile \
         --endpoint-type completions \
         --streaming \

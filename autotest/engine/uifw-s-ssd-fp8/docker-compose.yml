@@ -10,21 +10,22 @@ services:
       - /etc/machine-id:/etc/machine-id:ro
       - /etc/unieai:/etc/unieai
       - ${MODEL_PATH:-/home/unieai2/weights}:/weights
-      - ./entrypoint_inner.sh:/entrypoint_inner.sh
+      - ./entrypoint.sh:/entrypoint.sh
     runtime: nvidia
     cap_add:
       - SYS_ADMIN
     network_mode: host
     environment:
       NCCL_DEBUG: INFO
-      MODEL_PATH: ${MODEL_PATH:-/home/unieai2/weights}
-      MODEL_OWNER: ${MODEL_OWNER:-Qwen}
-      MODEL_NAME: ${MODEL_NAME:-Qwen3-0.6B}
+      ENGINE: ${ENGINE}
+      MODEL_PATH: ${MODEL_PATH:-/weights}
+      MODEL_OWNER: ${MODEL_OWNER:-google}
+      MODEL_NAME: ${MODEL_NAME:-gemma-3-270m}
       TP_SIZE: ${TP_SIZE:-1}
       PORT: ${PORT:-8999}
     ports:
       - "${PORT:-8999}:${PORT:-8999}"
     shm_size: 256gb
     entrypoint: bash
+    command: /entrypoint.sh
     # command: -c "sleep infinity"
-    command: /entrypoint_inner.sh

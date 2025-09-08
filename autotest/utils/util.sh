@@ -24,7 +24,7 @@ log() {
 
     mkdir -p "$log_dir"
 
-    echo "[$timestamp] $message" >> "$log_file"
+    echo -e "[$timestamp] $message" >> "$log_file"
 }
 
 parse_args() {

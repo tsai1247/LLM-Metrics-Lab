@@ -1,2 +1,0 @@
-#!/bin/bash
-docker compose -f engine/habana-vllm/docker-compose.yml down

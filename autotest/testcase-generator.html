@@ -252,6 +252,7 @@
       localStorage.setItem("default_modelpath", modelPath)
       const output = {
         model_path: modelPath,
+        export: "google-sheet",
         testcases: lastData
       };
       const blob = new Blob([JSON.stringify(output, null, 2)], { type: 'application/json' }); 

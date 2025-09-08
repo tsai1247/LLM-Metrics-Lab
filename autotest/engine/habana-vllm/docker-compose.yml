@@ -13,19 +13,21 @@ services:
       - ${MODEL_PATH:-/home/unieai2/weights}:/weights
       - ./:/workspace
       - /tmp/traces:/mnt/traces
-      - ./entrypoint_inner.sh:/entrypoint_inner.sh
+      - ./entrypoint.sh:/entrypoint.sh
     ipc: host
     environment:
       HABANA_DEVICE: gaudi3
       DEVICE: gaudi3
       VLLM_TORCH_PROFILER_DIR: /mnt/traces/
-      MODEL_OWNER: ${MODEL_OWNER:-Qwen}
-      MODEL_NAME: ${MODEL_NAME:-Qwen3-0.6B}
+      ENGINE: ${ENGINE}
+      MODEL_PATH: ${MODEL_PATH:-/weights}
+      MODEL_OWNER: ${MODEL_OWNER:-google}
+      MODEL_NAME: ${MODEL_NAME:-gemma-3-270m}
       TP_SIZE: ${TP_SIZE:-1}
-      PORT: ${PORT:-8000}
+      PORT: ${PORT:-8999}
       VLLM_SKIP_WARMUP: ${SKIPWARMUP:-true}
     ports:
       - "${PORT}:${PORT}"
     entrypoint: bash
-    command: /entrypoint_inner.sh
+    command: /entrypoint.sh
     # command: -c "sleep infinity"

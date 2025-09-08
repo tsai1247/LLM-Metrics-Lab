@@ -33,6 +33,7 @@ if ! command -v jq &> /dev/null; then
 fi
 
 model_path=$(jq -r '.model_path' "$file_path")
+export=$(jq -r '.export' "$file_path")
 
 # 讀取 JSON 檔案並遍歷每個物件
 jq -c '.testcases[]' "$file_path" | while read -r item; do
@@ -56,6 +57,7 @@ jq -c '.testcases[]' "$file_path" | while read -r item; do
   echo "benchmark: $benchmark"
   echo "concurrency: $concurrency"
   echo "engine: $engine"
+  echo "export: $export"
   echo "model_owner: $model_owner"
   echo "model_name: $model_name"
   echo "interval: $interval"
@@ -70,6 +72,7 @@ jq -c '.testcases[]' "$file_path" | while read -r item; do
     --benchmark "$benchmark" \
     --concurrency "$concurrency" \
     --engine "$engine" \
+    --export "$export" \
     --model-path "$model_path" \
     --model-owner "$model_owner" \
     --model-name "$model_name" \
@@ -86,4 +89,4 @@ if [ -z "$name" ]; then
   name="result_${start_date}_${end_date}"
 fi
 
-bash export/entrypoint_outer.sh --name "$name" --start-date "$start_date" --end-date "$end_date"
+bash export/entrypoint.sh --export "$export" --name "$name" --start-date "$start_date" --end-date "$end_date"

@@ -16,7 +16,8 @@ services:
     command: /entrypoint_inner.sh
     environment:
       PYTHONUNBUFFERED: 1
-      EXPORT_NAME: ${EXPORT_NAME:-result}
+      EXPORT_TYPE: ${EXPORT_TYPE:-google-sheet}
+      EXPORT_NAME: ${EXPORT_NAME}
       EXPORT_START_DATE: ${EXPORT_START_DATE:-19700101-000000}
       EXPORT_END_DATE: ${EXPORT_END_DATE:-99991231-235959}
     restart: "no"

@@ -1,6 +1,9 @@
 #!/bin/bash
 source utils/util.sh
 
+allowed_args="engine benchmark port"
+parse_args "$allowed_args" "$@"
+
 # call engine/${engine}.sh
 bash engine/${engine}/entrypoint_outer.sh "$@"
 

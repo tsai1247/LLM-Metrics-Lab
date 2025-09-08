@@ -47,7 +47,6 @@ jq -c '.testcases[]' "$file_path" | while read -r item; do
   port=$(echo "$item" | jq -r '.port')
   tp_size=$(echo "$item" | jq -r '.tp_size')
 
-  model_id = "Qwen/Qwen3-0.6B"
   # get model_owner and model_name from model_id
   model_owner="${model_id%%/*}"
   model_name="${model_id#*/}"
@@ -65,7 +64,6 @@ jq -c '.testcases[]' "$file_path" | while read -r item; do
   echo "port: $port"
   echo "tp_size: $tp_size"
   echo "=============================="
-
 
   # 組合參數並執行 singletest.sh
   bash singletest.sh \

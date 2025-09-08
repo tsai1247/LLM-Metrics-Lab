@@ -42,10 +42,6 @@ parse_args() {
         val="$2"         # /path
         shift
         ;;
-      *)
-        echo "未知參數: $1"
-        exit 1
-        ;;
     esac
 
     local found=0
@@ -57,11 +53,6 @@ parse_args() {
         break
       fi
     done
-
-    if [[ $found -eq 0 ]]; then
-      echo "未知參數: $key"
-      exit 1
-    fi
 
     shift
   done

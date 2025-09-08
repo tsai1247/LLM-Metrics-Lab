@@ -103,6 +103,8 @@
     const addTagBtn = document.getElementById('addTagBtn');
     const tagContainer = document.getElementById('tagContainer');
     const modeRadios = document.getElementsByName('mode');
+    const modelPathInput = document.getElementById('modelPathInput')
+    modelPathInput.value = localStorage.getItem("default_modelpath")
 
     schema.forEach(f => {
       const card = document.createElement('div');
@@ -119,7 +121,7 @@
         const o = document.createElement('option');
         o.value = opt;
         o.textContent = opt;
-        o.selected = true;
+        o.selected = false;
         select.appendChild(o);
       });
       card.appendChild(select);
@@ -247,6 +249,7 @@
     generateBtn.onclick = () => { lastData = generate(); if (!lastData) return; applyFilter(); results.hidden = false; exportBtn.disabled = false; };
     exportBtn.onclick = () => { 
       const modelPath = document.getElementById('modelPathInput').value || "";
+      localStorage.setItem("default_modelpath", modelPath)
       const output = {
         model_path: modelPath,
         testcases: lastData

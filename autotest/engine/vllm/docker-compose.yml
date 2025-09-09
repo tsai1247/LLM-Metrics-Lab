@@ -1,0 +1,28 @@
+version: "3.9"
+services:
+  vllm:
+    image: vllm/vllm-openai:latest
+    container_name: vllm-for-autotest
+    runtime: nvidia
+    shm_size: 256g
+    volumes:
+      - ${MODEL_PATH:-/weights}:/weights
+      - ./entrypoint.sh:/entrypoint.sh
+    environment:
+      ENGINE: ${ENGINE}
+      MODEL_PATH: ${MODEL_PATH:-/weights}
+      MODEL_OWNER: ${MODEL_OWNER:-google}
+      MODEL_NAME: ${MODEL_NAME:-gemma-3-270m}
+      TP_SIZE: ${TP_SIZE:-1}
+      PORT: ${PORT:-8999}
+    entrypoint: bash
+    command: /entrypoint.sh
+    ports:
+      - "${PORT:-8999}:${PORT:-8999}"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 2
+              capabilities: [gpu]

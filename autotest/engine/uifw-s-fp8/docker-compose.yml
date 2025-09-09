@@ -9,7 +9,7 @@ services:
       - /sys:/sys:ro
       - /etc/machine-id:/etc/machine-id:ro
       - /etc/unieai:/etc/unieai
-      - ${MODEL_PATH:-/home/unieai2/weights}:/weights
+      - ${MODEL_PATH:-/weights}:/weights
       - ./entrypoint.sh:/entrypoint.sh
     runtime: nvidia
     cap_add:

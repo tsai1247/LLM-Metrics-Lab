@@ -16,4 +16,4 @@ export MODEL_OWNER=$model_owner
 export MODEL_NAME=$model_name
 export TP_SIZE=$tp_size
 
-docker compose -f engine/${engine}/docker-compose.yml up -d
+docker compose -f engine/$engine/docker-compose.yml up -d

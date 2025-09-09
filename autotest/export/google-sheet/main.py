@@ -175,9 +175,8 @@ def update_sheet_twolevel(worksheetname, data):
 
 # create new worksheet named "name_start_date_to_end_date"
 
-worksheetname = f"{name}_genai_perf_{start_date} to {end_date}"
+worksheetname = f"{name}_genai_perf"
 update_sheet_twolevel(worksheetname, genai_perf_data)
 
-
-worksheetname = f"{name}_nctu6_{start_date} to {end_date}"
+worksheetname = f"{name}_nctu6"
 update_sheet(worksheetname, nctu6_data)

@@ -4,17 +4,17 @@ services:
     image: nctu6/uifw-one:air520
     container_name: uifw-s-ssd-fp8-for-autotest
     volumes:
-      - /home/unieai2:/root
       - /mnt/nvme0:/mnt/nvme0
       - /sys:/sys:ro
       - /etc/machine-id:/etc/machine-id:ro
       - /etc/unieai:/etc/unieai
-      - ${MODEL_PATH:-/home/unieai2/weights}:/weights
+      - ${MODEL_PATH:-/weights}:/weights
       - ./entrypoint.sh:/entrypoint.sh
     runtime: nvidia
     cap_add:
       - SYS_ADMIN
     network_mode: host
+    shm_size: 256gb
     environment:
       NCCL_DEBUG: INFO
       ENGINE: ${ENGINE}
@@ -25,7 +25,6 @@ services:
       PORT: ${PORT:-8999}
     ports:
       - "${PORT:-8999}:${PORT:-8999}"
-    shm_size: 256gb
     entrypoint: bash
     command: /entrypoint.sh
     # command: -c "sleep infinity"

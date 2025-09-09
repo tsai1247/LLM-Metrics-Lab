@@ -1,20 +1,3 @@
-check_server (){
-	server=$1
-	while true; do
-	  HTTP_CODE=$(curl -o /dev/null -s -w "%{http_code}" $server --connect-timeout 3 --max-time 5)
-	  #if [[ "$HTTP_CODE" -eq 200 ]]; then
-	  RET_CODE=$?
-	  if [ "$RET_CODE" -eq 0 ]; then
-	      echo "✅ Server is ready (HTTP 200)"
-	      break
-	  else
-	      echo "Wait for server ready."
-	      echo "Status $HTTP_CODE. RET: $RET_CODE"
-	      sleep 3
-	  fi
-	done
-}
-
 log() {
     local message="$1"
     local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
@@ -25,6 +8,44 @@ log() {
     mkdir -p "$log_dir"
 
     echo -e "[$timestamp] $message" >> "$log_file"
+}
+
+check_server (){
+    server=$1
+    container_id=$2
+    max_wait=${3:-60}
+    waited=0
+
+    while true; do
+        # 檢查 container 是否還活著
+        if ! docker ps --format "{{.Names}}" | grep -q "^${container_id}$"; then
+            echo "❌ Docker container $container_id 已經停止，停止等待。"
+            log "❌ Docker container $container_id 已經停止，停止等待。"
+            exit 1
+        fi
+
+        # 檢查 server 是否回應
+        HTTP_CODE=$(curl -o /dev/null -s -w "%{http_code}" "$server" --connect-timeout 3 --max-time 5)
+        RET_CODE=$?
+
+        if [ "$RET_CODE" -eq 0 ] && [ "$HTTP_CODE" -eq 200 ]; then
+            echo "✅ Server is ready (HTTP 200)"
+            log "✅ Server is ready (HTTP 200)"
+            break
+        else
+            echo "⏳ Wait for server ready... (status=$HTTP_CODE, ret=$RET_CODE)"
+        fi
+
+        # timeout 判斷
+        waited=$((waited+3))
+        if [ $waited -ge $max_wait ]; then
+            echo "❌ Timeout after ${max_wait} seconds, server not ready."
+            log "❌ Timeout after ${max_wait} seconds, server not ready."
+            exit 1
+        fi
+
+        sleep 3
+    done
 }
 
 parse_args() {
@@ -57,3 +78,18 @@ parse_args() {
     shift
   done
 }
+
+visualize_sleep() {
+  seconds=$1
+  bar_length=50
+  for ((i=1; i<=seconds; i++)); do
+    sleep 1
+    percent=$(( i * 100 / seconds ))
+    filled=$(( i * bar_length / seconds ))
+    bar=$(printf "%${filled}s" | tr ' ' '#')
+    spaces=$(printf "%$((bar_length-filled))s")
+    printf "\rwait for %d seconds [%-s%-s] %3d%%" "$seconds" "$bar" "$spaces" "$percent"
+  done
+  echo    # 換行
+}
+

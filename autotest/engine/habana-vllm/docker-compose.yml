@@ -1,7 +1,6 @@
 version: "3.9"
 services:
-  vllm:
-    #image: habana-vllm:latest
+  habana-vllm:
     image: vllm:habana
     runtime: habana
     privileged: true
@@ -10,7 +9,7 @@ services:
     volumes:
       - /dev/accel:/dev/accel
       - ~/.cache/huggingface:/root/.cache/huggingface
-      - ${MODEL_PATH:-/home/unieai2/weights}:/weights
+      - ${MODEL_PATH:-/weights}:/weights
       - ./:/workspace
       - /tmp/traces:/mnt/traces
       - ./entrypoint.sh:/entrypoint.sh

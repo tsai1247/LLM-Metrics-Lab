@@ -24,5 +24,5 @@ services:
         reservations:
           devices:
             - driver: nvidia
-              count: 2
+              count: ${TP_SIZE:-1}
               capabilities: [gpu]

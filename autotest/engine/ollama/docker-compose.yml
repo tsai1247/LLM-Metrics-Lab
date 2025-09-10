@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama-for-autotest
+    restart: no
+    volumes:
+      - ${MODEL_PATH:-/weights}:/weights
+      - ~/service/weight/ollama:/root/.ollama
+      - ./entrypoint.sh:/entrypoint.sh
+    environment:
+      - CUDA_VISIBLE_DEVICES=0,1,2,3
+      - OLLAMA_GPU_LAYER=cuda
+      - OLLAMA_HOST=127.0.0.1:${PORT:-8999}
+      - ENGINE=${ENGINE}
+      - MODEL_PATH=${MODEL_PATH:-/weights}
+      - MODEL_OWNER=${MODEL_OWNER:-google}
+      - MODEL_NAME=${MODEL_NAME:-gemma-3-270m}
+      - GGUF_NAME=${GGUF_NAME}
+      - TP_SIZE=${TP_SIZE:-1}
+      - PORT=${PORT:-8999}
+    ports:
+      - "${PORT:-8999}:${PORT:-8999}"
+    network_mode: host
+    entrypoint: bash
+    # command: -c "sleep infinity"
+    command: /entrypoint.sh
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: ${TP_SIZE:-1}
+              capabilities: [gpu]

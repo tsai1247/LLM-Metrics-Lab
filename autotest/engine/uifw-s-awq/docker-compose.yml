@@ -1,0 +1,31 @@
+version: "3.9"
+services:
+  uifw-s-awq:
+    image: nctu6/uifw-s:cu126
+    container_name: uifw-s-awq-for-autotest
+    volumes:
+      - /home/unieai2:/root
+      - /mnt/nvme0:/mnt/nvme0
+      - /sys:/sys:ro
+      - /etc/machine-id:/etc/machine-id:ro
+      - /etc/unieai:/etc/unieai
+      - ${MODEL_PATH:-/weights}:/weights
+      - ./entrypoint.sh:/entrypoint.sh
+    runtime: nvidia
+    cap_add:
+      - SYS_ADMIN
+    network_mode: host
+    environment:
+      NCCL_DEBUG: INFO
+      ENGINE: ${ENGINE}
+      MODEL_PATH: ${MODEL_PATH:-/weights}
+      MODEL_OWNER: ${MODEL_OWNER:-google}
+      MODEL_NAME: ${MODEL_NAME:-gemma-3-270m}
+      TP_SIZE: ${TP_SIZE:-1}
+      PORT: ${PORT:-8999}
+    ports:
+      - "${PORT:-8999}:${PORT:-8999}"
+    shm_size: 256gb
+    entrypoint: bash
+    command: /entrypoint.sh
+    # command: -c "sleep infinity"

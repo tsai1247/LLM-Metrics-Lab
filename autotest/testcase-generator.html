@@ -18,7 +18,7 @@
     .add-row { display:flex; gap:6px; margin-top:8px; }
     .add-row input { flex:1; padding:8px; border-radius:8px; border:1px solid var(--line); }
     .add-row button { padding:8px 10px; border-radius:8px; border:1px solid var(--line); background:#fff; cursor:pointer; }
-    select { width:100%; min-height: 120px; padding:8px; border-radius: 10px; border:1px solid var(--line); background:#fff; }
+    select { width:100%; min-height: 200px; padding:8px; border-radius: 10px; border:1px solid var(--line); background:#fff; }
     .toolbar { display:flex; gap:8px; flex-wrap: wrap; margin: 16px 0; }
     button.primary { background:#111827; color:#fff; border:1px solid #111827; padding:10px 14px; border-radius:10px; cursor:pointer; }
     button.secondary { background:#fff; color:#111827; border:1px solid var(--line); padding:10px 14px; border-radius:10px; cursor:pointer; }
@@ -34,6 +34,16 @@
     .footer { color:var(--muted); font-size:12px; margin-top:20px; }
     .delete-btn { color: red; cursor: pointer; }
     .tag { background:#e0e0ef; padding:2px 6px; border-radius:4px; margin-right:4px; display:inline-block; cursor:pointer; }
+    .card select {
+      width: 100%;
+      min-height: 200px;
+      padding: 8px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: #fff;
+      overflow-x: auto;   /* 啟用水平捲軸 */
+      white-space: nowrap; /* 讓選項不換行，超出才出現橫向捲動 */
+    }
   </style>
 </head>
 <body>
@@ -83,10 +93,13 @@
       { key: 'engine', label: 'engine', options: [
           'habana-vllm', 
           'vllm', 
+          'ollama',
           'uifw-s-fp8', 
           'uifw-s-ssd-fp8', 
           'uifw-l-fp8', 
-          'ollama'
+          'uifw-l-awq', 
+          'uifw-s-awq', 
+          'uifw-s-awq-ssd', 
         ], type: 'string' },
       { key: 'model_id', label: 'model_id', options: [
           'Qwen/Qwen3-0.6B',
@@ -96,7 +109,9 @@
           'Qwen/Qwen2.5-72B-Instruct',
           'Qwen/Qwen3-30B-A3B-Instruct-2507',
           'Qwen/Qwen3-30B-A3B-Instruct-2507-FP8',
+          'ELVISIO/Qwen3-30B-A3B-Instruct-2507-AWQ',
           'unsloth/Qwen3-30B-A3B-Instruct-2507-GGUF/Qwen3-30B-A3B-Instruct-2507-Q8_0.gguf',
+          'unsloth/Qwen3-30B-A3B-Instruct-2507-GGUF/Qwen3-30B-A3B-Instruct-2507-Q4_0.gguf',
         ], type: 'string' },
       { key: 'interval', label: 'interval (ms)', options: [5000, 30000, 120000, 300000, 600000], type: 'number' },
       { key: 'input_tokens', label: 'input_tokens', options: [128, 1024, 2048], type: 'number' },

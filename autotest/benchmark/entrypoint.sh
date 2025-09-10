@@ -2,7 +2,8 @@
 source utils/util.sh
 
 allowed_args="benchmark concurrency model-path model-owner model-name interval input-tokens output-tokens tp-size port"
-parse_args "$allowed_args" "$@"echo "run unieai-test-g benchmark on port $port with model $model_owner/$model_name using $concurrency concurrency, $output_tokens output tokens"
+parse_args "$allowed_args" "$@"
+echo "run unieai-test-g benchmark on port $port with model $model_owner/$model_name using $concurrency concurrency, $output_tokens output tokens"
 
 log "start benchmark: $benchmark"
 log "\t model path: $model_path"

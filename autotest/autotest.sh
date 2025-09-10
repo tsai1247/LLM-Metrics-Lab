@@ -11,6 +11,8 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --file-path) file_path="$2"; shift 2 ;;
     --file-path=*) file_path="${1#*=}"; shift ;;
+    -f) file_path="$2"; shift 2 ;;
+    -f=*) file_path="${1#*=}"; shift ;;
     --name) name="$2"; shift 2 ;;
     --name=*) name="${1#*=}"; shift ;;
     *) echo "未知參數: $1"; exit 1;;
@@ -49,8 +51,7 @@ jq -c '.testcases[]' "$file_path" | while read -r item; do
   tp_size=$(echo "$item" | jq -r '.tp_size')
 
   # get model_owner and model_name from model_id
-  model_owner="${model_id%%/*}"
-  model_name="${model_id#*/}"
+  IFS='/' read -r model_owner model_name gguf_name <<< "$model_id"
 
   # echo
   echo "=============================="
@@ -60,6 +61,7 @@ jq -c '.testcases[]' "$file_path" | while read -r item; do
   echo "export: $export"
   echo "model_owner: $model_owner"
   echo "model_name: $model_name"
+  echo "gguf_name: $gguf_name"
   echo "interval: $interval"
   echo "input_tokens: $input_tokens"
   echo "output_tokens: $output_tokens"
@@ -76,6 +78,7 @@ jq -c '.testcases[]' "$file_path" | while read -r item; do
     --model-path "$model_path" \
     --model-owner "$model_owner" \
     --model-name "$model_name" \
+    --gguf-name "$gguf_name" \
     --interval "$interval" \
     --input-tokens "$input_tokens" \
     --output-tokens "$output_tokens" \

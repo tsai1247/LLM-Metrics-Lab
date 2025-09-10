@@ -23,7 +23,7 @@ mv ${RESULT_DIR}/${MODEL_NAME}-openai-completions-concurrency${CONCURRENCY} \
 
 # 將參數寫到 ${RESULT_DIR}/${date}/parameter.json
 echo "{
-  \"benchmark\": \"genai-perf\",
+  \"benchmark\": \"${BENCHMARK}\",
   \"concurrency\": ${CONCURRENCY},
   \"model_owner\": \"${MODEL_OWNER}\",
   \"model_name\": \"${MODEL_NAME}\",

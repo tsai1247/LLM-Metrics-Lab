@@ -8,7 +8,7 @@ mv ${RESULT_DIR}/result.json \
 
 # 將參數寫到 ${RESULT_DIR}/${date_dir}/parameter.json
 echo "{
-  \"benchmark\": \"unieai-test-s\",
+  \"benchmark\": \"${BENCHMARK}\",
   \"concurrency\": ${CONCURRENCY},
   \"model_owner\": \"${MODEL_OWNER}\",
   \"model_name\": \"${MODEL_NAME}\",

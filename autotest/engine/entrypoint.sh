@@ -17,4 +17,4 @@ export MODEL_NAME=$model_name
 export GGUF_NAME=$gguf_name
 export TP_SIZE=$tp_size
 
-docker compose -f engine/$engine/docker-compose.yml up
+docker compose -f engine/$engine/docker-compose.yml up -d

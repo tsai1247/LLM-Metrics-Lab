@@ -13,7 +13,7 @@ visualize_sleep 5
 check_server "http://127.0.0.1:${port}/v1/models" "$engine-for-autotest" 1200
 
 # call benchmark/${benchmark}.sh
-# bash benchmark/entrypoint.sh "$@"
+bash benchmark/entrypoint.sh "$@"
 
 visualize_sleep 5
 

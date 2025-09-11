@@ -19,8 +19,8 @@ services:
       NCCL_DEBUG: INFO
       ENGINE: ${ENGINE}
       MODEL_PATH: ${MODEL_PATH:-/weights}
-      MODEL_OWNER: ${MODEL_OWNER:-google}
-      MODEL_NAME: ${MODEL_NAME:-gemma-3-270m}
+      MODEL_OWNER: ${MODEL_OWNER:-Qwen}
+      MODEL_NAME: ${MODEL_NAME:-Qwen3-0.6B}
       TP_SIZE: ${TP_SIZE:-1}
       PORT: ${PORT:-8999}
     ports:

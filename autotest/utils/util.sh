@@ -7,6 +7,7 @@ log() {
 
     mkdir -p "$log_dir"
 
+    # echo -e "[s$timestamp] $message"
     echo -e "[$timestamp] $message" >> "$log_file"
 }
 
@@ -21,11 +22,23 @@ check_server (){
         if ! docker ps --format "{{.Names}}" | grep -q "^${container_id}$"; then
             echo "❌ Docker container $container_id 已經停止，停止等待。"
             log "❌ Docker container $container_id 已經停止，停止等待。"
-            exit 1
+            return 1
         fi
 
         # 檢查 server 是否回應
-        HTTP_CODE=$(curl -o /dev/null -s -w "%{http_code}" "$server" --connect-timeout 3 --max-time 5)
+        HTTP_CODE=$(curl -o /dev/null -s -w "%{http_code}" "$server" --connect-timeout 3 --max-time 5) || {
+          waited=$((waited+3))
+          if [ $waited -ge $max_wait ]; then
+              echo "❌ Timeout after ${max_wait} seconds, server not ready."
+              log "❌ Timeout after ${max_wait} seconds, server not ready."
+              return 1
+          fi
+
+          printf "\r⏳ Wait for server ready... (status=$HTTP_CODE, ret=$RET_CODE, waited=$waited s)"
+          sleep 3
+          continue
+        }
+
         RET_CODE=$?
 
         if [ "$RET_CODE" -eq 0 ] && [ "$HTTP_CODE" -eq 200 ]; then
@@ -41,11 +54,12 @@ check_server (){
         if [ $waited -ge $max_wait ]; then
             echo "❌ Timeout after ${max_wait} seconds, server not ready."
             log "❌ Timeout after ${max_wait} seconds, server not ready."
-            exit 1
+            return 1
         fi
 
         sleep 3
     done
+    return 0
 }
 
 parse_args() {
@@ -93,3 +107,13 @@ visualize_sleep() {
   echo    # 換行
 }
 
+# 整數 log2
+ilog2() {
+    local n=$1
+    local p=0
+    while (( n > 1 )); do
+        (( n >>= 1 ))
+        (( p++ ))
+    done
+    echo $p
+}

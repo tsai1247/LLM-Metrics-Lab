@@ -4,6 +4,7 @@ import pandas as pd
 import gspread
 from google.oauth2.service_account import Credentials
 import os
+from time import sleep
 
 # usage: python main.py --start-date 20231011-010101 --end-date 20231011-235959
 # 解析參數，如果沒有參數的話預設是date.min ~ date.max
@@ -91,9 +92,21 @@ for data in [nctu6_data, genai_perf_data]:
             if field in row:
                 del row[field]
 
+sheet_operation_limit_per_minute = 60
+sheet_count = 0
+
+def check_sheet_count():
+    global sheet_count, sheet_operation_limit_per_minute
+    sheet_count += 1
+    if sheet_count > sheet_operation_limit_per_minute:
+        print("wait for 1 mins due to api limit")
+        sleep(60)
+        sheet_count = 0
+
 def update_sheet(worksheetname, data):
     # 轉換為 DataFrame
     df = pd.DataFrame(data)
+    df.fillna(-1, inplace=True)
 
     # 清空 Google Sheet與所有表格，重新上傳
     spreadsheet = client.open_by_key(docid)
@@ -104,6 +117,8 @@ def update_sheet(worksheetname, data):
 
     sheet.clear()
     sheet.update([df.columns.values.tolist()] + df.values.tolist())
+    check_sheet_count()
+        
 
 def genai_perf_to_sheet_rows(data):
     """
@@ -166,12 +181,17 @@ def update_sheet_twolevel(worksheetname, data):
             if end > start and value != "":
                 # 合併儲存格
                 sheet.merge_cells(f"{gspread.utils.rowcol_to_a1(1, start)}:{gspread.utils.rowcol_to_a1(1, end)}")
+                check_sheet_count()
         sheet.append_row(header2)
+        check_sheet_count()
+
+
         # header1, header2 兩列都要粗體置中
         sheet.format(f"A1:{gspread.utils.rowcol_to_a1(2, len(header1))}", {"horizontalAlignment": "CENTER", "textFormat": {"bold": True}})
         
         for row in values:
             sheet.append_row(row)
+            check_sheet_count()
 
 # create new worksheet named "name_start_date_to_end_date"
 

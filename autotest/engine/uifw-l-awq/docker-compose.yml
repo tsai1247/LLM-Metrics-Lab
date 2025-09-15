@@ -22,6 +22,7 @@ services:
       MODEL_NAME: ${MODEL_NAME:-Qwen3-0.6B}
       TP_SIZE: ${TP_SIZE:-1}
       PORT: ${PORT:-8999}
+      eager_mode: False
     ports:
       - "${PORT:-8999}:${PORT:-8999}"
     shm_size: 256gb

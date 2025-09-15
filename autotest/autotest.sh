@@ -36,6 +36,10 @@ fi
 
 IFS=',' read -r -a files <<< "$file_path"
 
+# docker stop all autotest containers
+docker stop $(docker ps --format '{{.Names}}' | grep for-autotest) || true
+visualize_sleep 5
+
 # 使用 for loop 遍歷每個檔案
 for f in "${files[@]}"; do
   model_path=$(jq -r '.model_path' "$f")
@@ -118,7 +122,7 @@ for f in "${files[@]}"; do
         echo "GPU 過熱 ($(IFS=,; echo "${temps[*]}") °C)，等待降溫..."
         sleep 10
     done
-
+    bash export/entrypoint.sh "$@" --name "tmp" --start-date "$start_date" --end-date "99991231-235958" 
   done
 done
 

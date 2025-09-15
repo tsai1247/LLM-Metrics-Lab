@@ -1,7 +1,8 @@
 version: "3.9"
 services:
   uifw-s-ssd-fp8:
-    image: nctu6/uifw-one:air520
+    image: nctu6/uifw-s:cu126
+    # image: nctu6/uifw-one:air520
     container_name: uifw-s-ssd-fp8-for-autotest
     volumes:
       - /mnt/nvme0:/mnt/nvme0

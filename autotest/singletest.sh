@@ -14,12 +14,22 @@ check_server "http://127.0.0.1:${port}/v1/models" "$engine-for-autotest" 1200
 
 # call benchmark/${benchmark}.sh
 bash benchmark/entrypoint.sh "$@"
+ret_code=$?
+log "ret_code $ret_code"
+if [[ $ret_code -eq 0 ]]; then
+    echo "benchmark success $ret_code"
+    echo $(date +%Y%m%d-%H%M%S) "success $@" >> logs/failed_record.txt
+else
+    echo "benchmark failed $ret_code"
+    echo $(date +%Y%m%d-%H%M%S) "failed $@" >> logs/failed_record.txt
+fi
 
 visualize_sleep 5
 
 # exit engine
+echo "stop engine"
 bash engine/exit.sh "$@"
 
 visualize_sleep 5
 
-bash export/entrypoint.sh "$@" --name "tmp" --start-date "19700101-000001" --end-date "99991231-235958" 
+exit $ret_code

@@ -17,12 +17,12 @@ genai-perf profile \
         --concurrency ${CONCURRENCY} \
         --artifact-dir=${RESULT_DIR}
 
-date=$(date +%Y%m%d-%H%M%S)
 mv ${RESULT_DIR}/${MODEL_NAME}-openai-completions-concurrency${CONCURRENCY} \
-        ${RESULT_DIR}/${date}
+        ${RESULT_DIR}/${BENCHMARK_DATE}
 
-# 將參數寫到 ${RESULT_DIR}/${date}/parameter.json
+# 將參數寫到 ${RESULT_DIR}/${BENCHMARK_DATE}/parameter.json
 echo "{
+  \"engine\": \"${ENGINE}\",
   \"benchmark\": \"${BENCHMARK}\",
   \"concurrency\": ${CONCURRENCY},
   \"model_owner\": \"${MODEL_OWNER}\",
@@ -31,4 +31,4 @@ echo "{
   \"input_tokens\": ${INPUT_TOKENS},
   \"output_tokens\": ${OUTPUT_TOKENS},
   \"tp_size\": ${TP_SIZE}
-}" > ${RESULT_DIR}/${date}/parameter.json
+}" > ${RESULT_DIR}/${BENCHMARK_DATE}/parameter.json

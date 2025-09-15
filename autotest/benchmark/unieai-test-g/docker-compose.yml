@@ -16,6 +16,7 @@ services:
     command: /entrypoint.sh
     environment:
       - PYTHONUNBUFFERED=1
+      - ENGINE=${ENGINE}
       - BENCHMARK=${BENCHMARK}
       - MODEL_PATH=${MODEL_PATH:-/weights}
       - MODEL_OWNER=${MODEL_OWNER:-Qwen}
@@ -27,4 +28,5 @@ services:
       - CONCURRENCY=${CONCURRENCY:-1}
       - TP_SIZE=${TP_SIZE:-1}
       - RESULT_DIR=${RESULT_DIR:-/results/unieai-test-g}
+      - BENCHMARK_DATE=${BENCHMARK_DATE:-test}
     restart: "no"

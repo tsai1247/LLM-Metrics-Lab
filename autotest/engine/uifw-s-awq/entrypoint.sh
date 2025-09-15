@@ -5,7 +5,7 @@ python3 -m sglang.launch_server \
         --served-model-name ${MODEL_NAME} \
         --tp-size ${TP_SIZE} \
         --host 0.0.0.0 \
-        --port ${PORT}
+        --port ${PORT} --disable-cuda-graph --disable-radix-cache
 
 SERVER_PID=$!
 echo "Server PID: $SERVER_PID"

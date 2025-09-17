@@ -1,4 +1,6 @@
 #!/bin/bash
+source utils/util.sh
+
 # usage
 # bash autotest.sh --file-path a.json
 
@@ -122,7 +124,7 @@ for f in "${files[@]}"; do
         echo "GPU 過熱 ($(IFS=,; echo "${temps[*]}") °C)，等待降溫..."
         sleep 10
     done
-    bash export/entrypoint.sh "$@" --name "tmp" --start-date "$start_date" --end-date "99991231-235958" 
+    bash export/entrypoint.sh --export "$export" --name "tmp" --start-date "$start_date" --end-date "99991231-235958" 
   done
 done
 

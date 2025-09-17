@@ -4,20 +4,19 @@ input_tokens: ${INPUT_TOKENS}, output_tokens: ${OUTPUT_TOKENS}, interval: ${INTE
 result_dir: ${RESULT_DIR}"
 
 genai-perf profile \
-        --endpoint-type completions \
+        --endpoint-type ${ENDPOINT_TYPE} \
         --streaming \
         --url http://localhost:${PORT} \
         -m ${MODEL_NAME} \
-        --tokenizer ${MODEL_OWNER}/${MODEL_NAME} \
+        --tokenizer ${TOKENIZER} \
         --extra-inputs ignore_eos:true \
-        --extra-inputs temperature:0 \
         --synthetic-input-tokens-mean ${INPUT_TOKENS} \
         --output-tokens-mean ${OUTPUT_TOKENS} \
         --measurement-interval ${INTERVAL} \
         --concurrency ${CONCURRENCY} \
         --artifact-dir=${RESULT_DIR}
 
-mv ${RESULT_DIR}/${MODEL_NAME}-openai-completions-concurrency${CONCURRENCY} \
+mv ${RESULT_DIR}/${MODEL_NAME}-openai-${ENDPOINT_TYPE}-concurrency${CONCURRENCY} \
         ${RESULT_DIR}/${BENCHMARK_DATE}
 
 # 將參數寫到 ${RESULT_DIR}/${BENCHMARK_DATE}/parameter.json

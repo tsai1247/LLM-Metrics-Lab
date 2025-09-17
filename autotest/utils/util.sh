@@ -62,6 +62,44 @@ check_server (){
     return 0
 }
 
+check_ollama_server() {
+    local target="$1"      # e.g. http://127.0.0.1:11434
+    local model_name="$2"  # e.g. qwen2:7b
+    local timeout="$3"     # e.g. 1200 秒
+    local start_time=$(date +%s)
+
+    echo "🔍 Checking Ollama server at $target for model '$model_name' (timeout ${timeout}s)..."
+
+    while true; do
+        # timeout 判斷
+        local now=$(date +%s)
+        local elapsed=$((now - start_time))
+
+        if [ "$elapsed" -ge "$timeout" ]; then
+            echo "⏰ Timeout after ${timeout}s: model '$model_name' not found."
+            return 1
+        fi
+
+        # 檢查 server 是否回應
+        response=$(curl -s --max-time 5 "${target}/v1/models")
+        if [ $? -ne 0 ] || [ -z "$response" ]; then
+            printf "\r⚠️ Server not responding yet... (${elapsed}s)"
+            sleep 2
+            continue
+        fi
+
+        # 用 jq 檢查模型是否存在
+        echo "$response" | jq -e ".data[]?.id" | grep -q "\"${model_name}:"
+        if [ $? -eq 0 ]; then
+            echo "✅ Model '$model_name' is available on $target (elapsed ${elapsed}s)."
+            return 0
+        fi
+
+        printf "\r⏳ Server up, but model '$model_name' not available yet... (elapsed ${elapsed}s)"
+        sleep 2
+    done
+}
+
 parse_args() {
   local allowed="$1"   # 第一個參數是允許的參數清單 (空白分隔)
   shift                # 移掉 $1，剩下的才是真正傳入的參數

@@ -27,12 +27,6 @@ echo create model
 
 ollama create ${MODEL_NAME} -f /Modulefile
 
-echo run model
+# ollama run ${MODEL_NAME} "Ping(just response pong and eof)"
 
-ollama run ${MODEL_NAME}
-
-SERVER_PID=$!
-echo "Server PID: $SERVER_PID"
-wait $SERVER_PID
-
-# sleep infinity
+sleep infinity

@@ -1,14 +1,19 @@
 #!/bin/bash
 source utils/util.sh
 
-allowed_args="engine benchmark concurrency model-path model-owner model-name interval input-tokens output-tokens tp-size port"
+allowed_args="engine benchmark concurrency model-path model-owner model-name tokenizer interval input-tokens output-tokens tp-size port"
 parse_args "$allowed_args" "$@"
 echo "run unieai-test-g benchmark on port $port with model $model_owner/$model_name using $concurrency concurrency, $output_tokens output tokens"
+
+if [ "$engine" != "ollama" ]; then
+    tokenizer="${model_owner}/${model_name}"
+fi
 
 log "start benchmark: $benchmark"
 log "\t engine: $engine"
 log "\t model path: $model_path"
 log "\t model: $model_owner/$model_name"
+log "\t tokenizer: $tokenizer"
 log "\t concurrency: $concurrency"
 log "\t input_tokens: $input_tokens"
 log "\t output_tokens: $output_tokens"
@@ -23,6 +28,7 @@ export BENCHMARK=$benchmark
 export MODEL_PATH=$model_path
 export MODEL_OWNER=$model_owner
 export MODEL_NAME=$model_name
+export TOKENIZER=$tokenizer
 export CONCURRENCY=$concurrency
 export INPUT_TOKENS=$input_tokens
 export OUTPUT_TOKENS=$output_tokens
@@ -37,11 +43,15 @@ results_dir="$HOME/results/${benchmark}/${benchmark_date}"
 container_name="${benchmark}-for-autotest"
 
 # 計算 timeout (毫秒轉換成秒)
-timeout_ms=$(( interval + $(ilog2 "$concurrency") * 350000 ))
+timeout_ms=$(( interval + $(ilog2 "$concurrency") * 400000 ))
 alt_timeout_ms=$(( interval * 4 ))
 if (( alt_timeout_ms > timeout_ms )); then
     timeout_ms=$alt_timeout_ms
 fi
+if (( 0 > timeout_ms )); then
+    timeout_ms=300000
+fi
+
 timeout_s=$(( timeout_ms / 1000 ))
 
 log "等待 benchmark 完成，最長 $timeout_s 秒"

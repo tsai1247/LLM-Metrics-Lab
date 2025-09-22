@@ -8,9 +8,7 @@ python3 -m sglang.launch_server \
         --port ${PORT} \
         --enable-hierarchical-cache \
         --hicache-size "0" \
-        --hicache-storage-backend file \
-        --disable-cuda-graph --disable-radix-cache
-
+        --hicache-storage-backend file
 SERVER_PID=$!
 echo "Server PID: $SERVER_PID"
 wait $SERVER_PID

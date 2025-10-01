@@ -1,0 +1,5 @@
+argparse
+matplotlib
+gspread
+oauth2client
+pandas

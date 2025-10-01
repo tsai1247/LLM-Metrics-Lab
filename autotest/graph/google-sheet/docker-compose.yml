@@ -1,0 +1,16 @@
+version: "3.9"
+services:
+  myjob:
+    build: .
+    volumes:
+      - ./:/app
+    environment:
+      - WORKSHEET=${WORKSHEET}
+      - TYPE=${TYPE}
+      - TARGET=${TARGET}
+      - SERVICE_ACCOUNT=${SERVICE_ACCOUNT}
+    command: >
+      --worksheet ${WORKSHEET}
+      --type ${TYPE}
+      --target ${TARGET}
+      --service-account ${SERVICE_ACCOUNT}

@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  genai-perf:
+  google-sheet:
     build:
       context: .          # Dockerfile 所在目錄，這裡是同資料夾
       dockerfile: Dockerfile  # 可省略，如果名字就是 Dockerfile

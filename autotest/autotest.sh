@@ -98,30 +98,77 @@ for f in "${files[@]}"; do
     # 加上完成數量、累積執行時間、預估剩餘時間
 
     start_time=$(date +%s)
+    
+    THRESHOLD=60    # 溫度上限 °C
+    MAX_WAIT=300    # 最多等待秒數
+    start_time=$(date +%s)
+
     while true; do
-        # 取出所有 GPU 溫度 (數字)
-        temps=($(nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader,nounits))
-        too_hot=0
-        for t in "${temps[@]}"; do
-            if (( t > 60 )); then
-                too_hot=1
+        GPU_FOUND=true
+        # 嘗試取得 GPU 溫度
+        if command -v nvidia-smi &> /dev/null; then
+            temps=($(nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader,nounits 2>/dev/null))
+            if [ ${#temps[@]} -eq 0 ]; then
+                GPU_FOUND=false
+            fi
+        else
+            GPU_FOUND=false
+        fi
+
+        if [ "$GPU_FOUND" = true ]; then
+            # 檢查 GPU 是否過熱
+            too_hot=0
+            for t in "${temps[@]}"; do
+                if (( t > THRESHOLD )); then
+                    too_hot=1
+                    break
+                fi
+            done
+
+            if (( too_hot == 0 )); then
+                echo "✅ GPU 溫度已降至 ${THRESHOLD}°C 以下，繼續處理"
                 break
             fi
-        done
 
-        if (( too_hot == 0 )); then
-            echo "GPU 溫度已降至 60°C 以下，繼續處理"
-            break
+            echo "⚠️ GPU 過熱 ($(IFS=,; echo "${temps[*]}") °C)，等待降溫..."
+        else
+            # 如果 GPU 找不到或無溫度資料，檢查 CPU
+            OVERHEAT=false
+            for TEMP_FILE in /sys/class/thermal/thermal_zone*/temp; do
+                if [ ! -r "$TEMP_FILE" ]; then
+                    # 無法讀取時跳過
+                    continue
+                fi
+
+                TEMP=$(cat "$TEMP_FILE" 2>/dev/null)
+                # 如果讀取失敗也跳過
+                if [ -z "$TEMP" ]; then
+                    continue
+                fi
+
+                TEMP_C=$((TEMP / 1000))
+                echo "$TEMP_FILE: ${TEMP_C}°C"
+                if [ "$TEMP_C" -gt "$THRESHOLD" ]; then
+                    OVERHEAT=true
+                fi
+            done
+
+            if [ "$OVERHEAT" = false ]; then
+                echo "✅ CPU 溫度已降至 ${THRESHOLD}°C 以下，繼續處理"
+                break
+            fi
+
+            echo "⚠️ CPU 過熱，等待降溫..."
         fi
 
+        # 檢查是否超過最大等待時間
         now=$(date +%s)
         elapsed=$((now - start_time))
-        if (( elapsed > 300 )); then
-            echo "等待超過 5 分鐘，強制繼續"
+        if (( elapsed > MAX_WAIT )); then
+            echo "⏱ 等待超過 ${MAX_WAIT} 秒，強制繼續"
             break
         fi
 
-        echo "GPU 過熱 ($(IFS=,; echo "${temps[*]}") °C)，等待降溫..."
         sleep 10
     done
     bash export/entrypoint.sh --export "$export" --name "tmp" --start-date "$start_date" --end-date "99991231-235958" 

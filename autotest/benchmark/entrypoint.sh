@@ -43,13 +43,13 @@ results_dir="$HOME/results/${benchmark}/${benchmark_date}"
 container_name="${benchmark}-for-autotest"
 
 # 計算 timeout (毫秒轉換成秒)
-timeout_ms=$(( interval + $(ilog2 "$concurrency") * 400000 ))
+timeout_ms=$(( interval + $(ilog2 "$concurrency") * 600000 ))
 alt_timeout_ms=$(( interval * 4 ))
 if (( alt_timeout_ms > timeout_ms )); then
     timeout_ms=$alt_timeout_ms
 fi
-if (( 0 > timeout_ms )); then
-    timeout_ms=300000
+if (( 1800000 > timeout_ms )); then
+    timeout_ms=1800000
 fi
 
 timeout_s=$(( timeout_ms / 1000 ))

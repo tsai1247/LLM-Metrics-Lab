@@ -57,6 +57,7 @@ for f in "${files[@]}"; do
     interval=$(echo "$item" | jq -r '.interval')
     input_tokens=$(echo "$item" | jq -r '.input_tokens')
     output_tokens=$(echo "$item" | jq -r '.output_tokens')
+    container_name=$(echo "$item" | jq -r '.container_name')
     port=$(echo "$item" | jq -r '.port')
     tp_size=$(echo "$item" | jq -r '.tp_size')
 
@@ -89,6 +90,7 @@ for f in "${files[@]}"; do
       --model-owner "$model_owner" \
       --model-name "$model_name" \
       --gguf-name "$gguf_name" \
+      --container-name "$container_name" \
       --interval "$interval" \
       --input-tokens "$input_tokens" \
       --output-tokens "$output_tokens" \

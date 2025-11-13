@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  genai-perf:
+    build:
+      context: .          # Dockerfile 所在目錄，這裡是同資料夾
+      dockerfile: Dockerfile  # 可省略，如果名字就是 Dockerfile
+    network_mode: host
+    container_name: unieai-test-r-for-autotest
+    volumes:
+      - ./entrypoint.sh:/entrypoint.sh
+      - ${MODEL_PATH:-/weights}:/weights
+      - ~/results/unieai-test-r:/results/unieai-test-r
+      - ./r.py:/app/r.py
+    entrypoint: bash
+    command: /entrypoint.sh
+    environment:
+      - PYTHONUNBUFFERED=1
+      - ENGINE=${ENGINE}
+      - BENCHMARK=${BENCHMARK}
+      - MODEL_PATH=${MODEL_PATH:-/weights}
+      - MODEL_OWNER=${MODEL_OWNER:-Qwen}
+      - MODEL_NAME=${MODEL_NAME:-Qwen3-0.6B}
+      - PORT=${PORT:-8999}
+      - INPUT_TOKENS=${INPUT_TOKENS:-100}
+      - OUTPUT_TOKENS=${OUTPUT_TOKENS:-100}
+      - INTERVAL=${INTERVAL:-30000}
+      - CONCURRENCY=${CONCURRENCY:-1}
+      - TP_SIZE=${TP_SIZE:-1}
+      - RESULT_DIR=${RESULT_DIR:-/results/unieai-test-r}
+      - BENCHMARK_DATE=${BENCHMARK_DATE:-test}
+    restart: "no"
